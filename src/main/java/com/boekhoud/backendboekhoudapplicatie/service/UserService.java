@@ -1,15 +1,17 @@
 package com.boekhoud.backendboekhoudapplicatie.service;
 
-import com.boekhoud.backendboekhoudapplicatie.models.Role;
-import com.boekhoud.backendboekhoudapplicatie.models.User;
-import com.boekhoud.backendboekhoudapplicatie.repository.RoleRepository;
-import com.boekhoud.backendboekhoudapplicatie.repository.UserRepository;
+import com.boekhoud.backendboekhoudapplicatie.dal.repository.RoleRepository;
+import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
+import com.boekhoud.backendboekhoudapplicatie.model.Role;
+import com.boekhoud.backendboekhoudapplicatie.model.User;
+import com.boekhoud.backendboekhoudapplicatie.presentation.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -23,26 +25,42 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public User addUser(User user, Long roleId) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    // Voeg een nieuwe gebruiker toe en converteer naar DTO
+    public UserDTO addUser(UserDTO userDTO, Long roleId) {
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
-
         user.setRole(role);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return convertToDTO(savedUser);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    // Converteer een User naar UserDTO
+    private UserDTO convertToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setRoleName(user.getRole().getName());  // Alleen rolnaam meesturen
+        return dto;
     }
 
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
+    // Haal alle gebruikers op en converteer naar DTO
+    public List<UserDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public User updateUser(Long id, User userDetails, Long roleId) {
+    public Optional<UserDTO> getUserById(Long id) {
+        return userRepository.findById(id)
+                .map(this::convertToDTO);
+    }
+
+    public UserDTO updateUser(Long id, UserDTO userDetails, Long roleId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -51,10 +69,10 @@ public class UserService {
 
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
-
         user.setRole(role);
 
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+        return convertToDTO(updatedUser);
     }
 
     public void deleteUser(Long id) {
