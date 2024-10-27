@@ -1,16 +1,13 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation.api;
 
 import com.boekhoud.backendboekhoudapplicatie.presentation.dto.CompanyDTO;
-import com.boekhoud.backendboekhoudapplicatie.service.CompanyService;
+import com.boekhoud.backendboekhoudapplicatie.service.implementatie.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/companies")
@@ -19,13 +16,32 @@ public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
+    @PostMapping("/add")
+    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO) {
+        CompanyDTO newCompany = companyService.createCompany(companyDTO);
+        return ResponseEntity.ok(newCompany);
+    }
+
     @GetMapping
     public ResponseEntity<List<CompanyDTO>> getAllCompanies() {
         return ResponseEntity.ok(companyService.getAllCompanies());
     }
 
-    @PostMapping
-    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO) {
-        return ResponseEntity.ok(companyService.createCompany(companyDTO));
+    @GetMapping("/{id}")
+    public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Long id) {
+        Optional<CompanyDTO> company = companyService.getCompanyById(id);
+        return company.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Long id, @RequestBody CompanyDTO companyDTO) {
+        CompanyDTO updatedCompany = companyService.updateCompany(id, companyDTO);
+        return ResponseEntity.ok(updatedCompany);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
+        companyService.deleteCompany(id);
+        return ResponseEntity.noContent().build();
     }
 }

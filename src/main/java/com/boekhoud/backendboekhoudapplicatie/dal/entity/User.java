@@ -1,12 +1,15 @@
-package com.boekhoud.backendboekhoudapplicatie.model;
+package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
+@Table(name = "users")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -19,5 +22,4 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
-
 }

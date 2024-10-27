@@ -1,4 +1,4 @@
-package com.boekhoud.backendboekhoudapplicatie.model;
+package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
 
 import jakarta.persistence.*;
