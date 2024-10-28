@@ -9,6 +9,7 @@ import com.boekhoud.backendboekhoudapplicatie.dal.repository.CompanyRepository;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.RoleRepository;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
 import com.boekhoud.backendboekhoudapplicatie.presentation.dto.AccountantDTO;
+import com.boekhoud.backendboekhoudapplicatie.service.interfaces.AccountantServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class AccountantService {
+public class AccountantService implements AccountantServiceInterface {
 
     @Autowired
     private AccountantRepository accountantRepository;
@@ -35,6 +36,7 @@ public class AccountantService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Override
     public AccountantDTO createAccountant(AccountantDTO accountantDTO, Long companyId) {
         Role role = roleRepository.findByName("ACCOUNTANT")
                 .orElseThrow(() -> new RuntimeException("Accountant role not found"));
@@ -60,16 +62,19 @@ public class AccountantService {
         return convertToDTO(savedAccountant);
     }
 
+    @Override
     public List<AccountantDTO> getAllAccountants() {
         return accountantRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public Optional<AccountantDTO> getAccountantById(Long id) {
         return accountantRepository.findById(id).map(this::convertToDTO);
     }
 
+    @Override
     public AccountantDTO updateAccountant(Long id, AccountantDTO accountantDTO, Long companyId) {
         Accountant accountant = accountantRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Accountant not found"));
@@ -91,6 +96,7 @@ public class AccountantService {
         return convertToDTO(updatedAccountant);
     }
 
+    @Override
     public void deleteAccountant(Long id) {
         accountantRepository.deleteById(id);
     }

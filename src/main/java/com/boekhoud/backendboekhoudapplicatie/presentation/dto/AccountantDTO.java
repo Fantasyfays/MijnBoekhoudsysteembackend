@@ -9,8 +9,9 @@ public class AccountantDTO {
     private String firstName;
     private String lastName;
     private String email;
-    private String address;      // New field
-    private String employeeId;    // New field
-    private String phoneNumber;   // New field
+    private String address;
+    private String employeeId;
+    private String phoneNumber;
     private Long companyId;
+
 }

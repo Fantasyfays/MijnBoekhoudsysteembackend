@@ -1,7 +1,7 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation.api;
 
 import com.boekhoud.backendboekhoudapplicatie.presentation.dto.CompanyDTO;
-import com.boekhoud.backendboekhoudapplicatie.service.implementatie.CompanyService;
+import com.boekhoud.backendboekhoudapplicatie.service.interfaces.CompanyServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.Optional;
 public class CompanyController {
 
     @Autowired
-    private CompanyService companyService;
+    private CompanyServiceInterface companyService; // Gebruik de interface
 
     @PostMapping("/add")
     public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO) {

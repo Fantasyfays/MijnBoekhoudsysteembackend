@@ -1,7 +1,7 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation.api;
 
 import com.boekhoud.backendboekhoudapplicatie.presentation.dto.AccountantDTO;
-import com.boekhoud.backendboekhoudapplicatie.service.implementatie.AccountantService;
+import com.boekhoud.backendboekhoudapplicatie.service.interfaces.AccountantServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +14,7 @@ import java.util.Optional;
 public class AccountantController {
 
     @Autowired
-    private AccountantService accountantService;
+    private AccountantServiceInterface accountantService;
 
     @PostMapping("/add")
     public ResponseEntity<AccountantDTO> createAccountant(@RequestBody AccountantDTO accountantDTO, @RequestParam Long companyId) {
