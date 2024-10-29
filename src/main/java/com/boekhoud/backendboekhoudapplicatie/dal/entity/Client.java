@@ -1,41 +1,23 @@
 package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Client {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phone;
-    private String address;
-    private String city;
-    private String zip;
-    private String country;
-    private String companyName;
-    private String btwNumber;
-    private String kvkNumber;
-    private String bankNumber;
-    private String billingAddress;
-    private String billingCity;
-    private String billingCountry;
-    private String billingZip;
-    private String clientCategory;
+    private String name;
 
     @ManyToOne
-    @JoinColumn(name = "company_id")
-    private Company company;
-
-    @ManyToOne
-    @JoinColumn(name = "accountant_id")
-    private Accountant accountant;
+    @JoinColumn(name = "user_id")
+    private User user;
 }

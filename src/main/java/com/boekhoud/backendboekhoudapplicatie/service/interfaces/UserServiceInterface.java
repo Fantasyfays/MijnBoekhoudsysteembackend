@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserServiceInterface {
-    Optional<UserDTO> getUserById(Long id);
+    UserDTO createUser(UserDTO userDTO, Long roleId);
     List<UserDTO> getAllUsers();
-    UserDTO createUser(UserDTO userDTO, Long roleId); // roleId toegevoegd
-    UserDTO updateUser(Long id, UserDTO userDTO, Long roleId);
-    void deleteUser(Long id);
+    Optional<UserDTO> getUserById(Long id);
+    UserDTO updateUserById(Long id, UserDTO userDto);
+    void deleteUserById(Long id);
 }
