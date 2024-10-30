@@ -1,14 +1,15 @@
 package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -19,6 +20,7 @@ public class User {
 
     private String username;
     private String password;
+
 
     @ManyToOne
     @JoinColumn(name = "role_id")

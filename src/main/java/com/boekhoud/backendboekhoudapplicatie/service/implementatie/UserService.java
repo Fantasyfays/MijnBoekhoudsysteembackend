@@ -2,7 +2,9 @@ package com.boekhoud.backendboekhoudapplicatie.service.implementatie;
 
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.RoleRepository;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.Role;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
+import com.boekhoud.backendboekhoudapplicatie.presentation.dto.RoleDTO;
 import com.boekhoud.backendboekhoudapplicatie.presentation.dto.UserDTO;
 import com.boekhoud.backendboekhoudapplicatie.service.interfaces.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +35,10 @@ public class UserService implements UserServiceInterface {
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
-        // Zet de rol in, indien deze beschikbaar is
-        user.setRole(roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found")));
+        // Assign role during creation
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
+        user.setRole(role);
 
         User savedUser = userRepository.save(user);
         return convertToDTO(savedUser);
@@ -53,22 +57,27 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public UserDTO updateUserById(Long id, UserDTO userDto) {
+    public UserDTO updateUserById(Long id, UserDTO userDto, Long roleId) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         user.setUsername(userDto.getUsername());
 
-        // Controleer of het wachtwoord niet null is voordat het opnieuw wordt ingesteld
+        // Update password if provided
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
 
-        // Sla de wijzigingen op en converteer naar DTO
+        // Update role if new roleId is provided
+        if (roleId != null) {
+            Role role = roleRepository.findById(roleId)
+                    .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
+            user.setRole(role);
+        }
+
         User updatedUser = userRepository.save(user);
         return convertToDTO(updatedUser);
     }
-
 
     @Override
     public void deleteUserById(Long id) {
@@ -85,13 +94,25 @@ public class UserService implements UserServiceInterface {
         userRepository.delete(user);
     }
 
-
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
-        dto.setId(user.getId()); // Stel de id in
+        dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setRoleName(user.getRole().getName());
         return dto;
     }
-
+    public boolean isRoleValid(Long roleId) {
+        return roleRepository.existsById(roleId);
+    }
+    @Override
+    public List<RoleDTO> getAllRoles() {
+        return roleRepository.findAll().stream()
+                .map(role -> {
+                    RoleDTO dto = new RoleDTO();
+                    dto.setId(role.getId());
+                    dto.setName(role.getName());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
 }

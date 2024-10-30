@@ -1,5 +1,6 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation.api;
 
+import com.boekhoud.backendboekhoudapplicatie.presentation.dto.RoleDTO;
 import com.boekhoud.backendboekhoudapplicatie.presentation.dto.UserDTO;
 import com.boekhoud.backendboekhoudapplicatie.service.interfaces.UserServiceInterface;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,10 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO, @RequestParam Long roleId) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO, @RequestParam(required = false) Long roleId) {
+        if (roleId == null) {
+            return ResponseEntity.badRequest().build(); // Return empty body with 400 status
+        }
         UserDTO newUser = userService.createUser(userDTO, roleId);
         return ResponseEntity.ok(newUser);
     }
@@ -38,10 +42,21 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUserById(@PathVariable Long id, @RequestBody UserDTO userDto) {
-        UserDTO updatedUser = userService.updateUserById(id, userDto);
+    public ResponseEntity<?> updateUserById(@PathVariable Long id, @RequestBody UserDTO userDto, @RequestParam(required = false) Long roleId) {
+        // Check if the roleId is provided but does not correspond to a valid role in your service
+        if (roleId != null && !userService.isRoleValid(roleId)) {
+            return ResponseEntity.badRequest().body("Invalid Role ID provided");
+        }
+
+        UserDTO updatedUser = userService.updateUserById(id, userDto, roleId);
         return ResponseEntity.ok(updatedUser);
     }
+    @GetMapping("/roles")
+    public ResponseEntity<List<RoleDTO>> getAllRoles() {
+        List<RoleDTO> roles = userService.getAllRoles();
+        return ResponseEntity.ok(roles);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
