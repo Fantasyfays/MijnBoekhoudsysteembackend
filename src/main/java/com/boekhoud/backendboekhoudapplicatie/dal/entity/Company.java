@@ -2,13 +2,9 @@ package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
-@Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Entity
 public class Company {
 
     @Id
@@ -17,5 +13,5 @@ public class Company {
 
     private String name;
     private String address;
-    private String phoneNumber; // Ensure this field is present
+    private String email;
 }

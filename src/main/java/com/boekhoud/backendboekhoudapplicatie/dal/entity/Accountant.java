@@ -1,36 +1,35 @@
 package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import java.time.LocalDate;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Data // Lombok genereert automatisch getters en setters
+@NoArgsConstructor // Lege constructor voor JPA
+@AllArgsConstructor // Constructor met alle velden
 public class Accountant {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Link to User for authentication and authorization
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    // Link to Company the accountant works for
     @ManyToOne
-    @JoinColumn(name = "company_id")
+    @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    // Accountant-specific fields
     private String firstName;
     private String lastName;
-    private String employeeId; // Unique ID for the accountant in the company
-    private String email;
     private String phoneNumber;
-    private String address;
-
+    private String email;
+    private String specialization;
+    private String officeLocation;
+    private LocalDate dateOfHire;
+    private Boolean activeStatus;
 }
