@@ -18,14 +18,36 @@ public class InvoiceService {
 
     public Invoice createInvoice(InvoiceDTO invoiceDTO) {
         if (invoiceDTO.getInvoiceNumber() == null || invoiceDTO.getInvoiceNumber().isEmpty()) {
-            throw new IllegalArgumentException("Invoice number is required");
+            throw new IllegalArgumentException("Factuurnummer is verplicht");
         }
         if (invoiceDTO.getCustomerName() == null || invoiceDTO.getCustomerName().isEmpty()) {
-            throw new IllegalArgumentException("Customer name is required");
+            throw new IllegalArgumentException("Klantnaam is verplicht");
+        }
+        if (invoiceDTO.getCustomerAddress() == null || invoiceDTO.getCustomerAddress().isEmpty()) {
+            throw new IllegalArgumentException("Klantadres is verplicht");
+        }
+        if (invoiceDTO.getInvoiceDate() == null) {
+            throw new IllegalArgumentException("Factuurdatum is verplicht");
         }
         if (invoiceDTO.getItems() == null || invoiceDTO.getItems().isEmpty()) {
-            throw new IllegalArgumentException("Invoice must contain at least one item");
+            throw new IllegalArgumentException("Factuur moet minimaal één item bevatten");
         }
+
+        List<InvoiceItem> items = invoiceDTO.getItems().stream().map(itemDTO -> {
+            if (itemDTO.getQuantity() <= 0) {
+                throw new IllegalArgumentException("Hoeveelheid moet groter zijn dan nul");
+            }
+            if (itemDTO.getUnitPrice() < 0) {
+                throw new IllegalArgumentException("Eenheidsprijs mag niet negatief zijn");
+            }
+
+            InvoiceItem item = new InvoiceItem();
+            item.setDescription(itemDTO.getDescription());
+            item.setQuantity(itemDTO.getQuantity());
+            item.setUnitPrice(itemDTO.getUnitPrice());
+            item.setTotal(itemDTO.getQuantity() * itemDTO.getUnitPrice());
+            return item;
+        }).collect(Collectors.toList());
 
         Invoice invoice = new Invoice();
         invoice.setInvoiceNumber(invoiceDTO.getInvoiceNumber());
@@ -44,23 +66,6 @@ public class InvoiceService {
         invoice.setTotalAmount(invoiceDTO.getTotalAmount());
         invoice.setPaymentTerms(invoiceDTO.getPaymentTerms());
         invoice.setNotes(invoiceDTO.getNotes());
-
-        List<InvoiceItem> items = invoiceDTO.getItems().stream().map(itemDTO -> {
-            if (itemDTO.getQuantity() <= 0) {
-                throw new IllegalArgumentException("Quantity must be greater than zero");
-            }
-            if (itemDTO.getUnitPrice() < 0) {
-                throw new IllegalArgumentException("Unit price cannot be negative");
-            }
-
-            InvoiceItem item = new InvoiceItem();
-            item.setDescription(itemDTO.getDescription());
-            item.setQuantity(itemDTO.getQuantity());
-            item.setUnitPrice(itemDTO.getUnitPrice());
-            item.setTotal(itemDTO.getQuantity() * itemDTO.getUnitPrice());
-            return item;
-        }).collect(Collectors.toList());
-
         invoice.setItems(items);
 
         return invoiceRepository.save(invoice);

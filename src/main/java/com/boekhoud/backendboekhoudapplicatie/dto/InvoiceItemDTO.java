@@ -8,4 +8,11 @@ public class InvoiceItemDTO {
     private Integer quantity;
     private Double unitPrice;
     private Double total;
+
+    public InvoiceItemDTO(String description, int quantity, double unitPrice, double total) {
+        this.description = description;
+        this.quantity = quantity;
+        this.unitPrice = unitPrice;
+        this.total = total;
+    }
 }
