@@ -7,7 +7,6 @@ public class LoginResponseDTO {
         this.message = message;
     }
 
-    // Getter en Setter
     public String getMessage() {
         return message;
     }

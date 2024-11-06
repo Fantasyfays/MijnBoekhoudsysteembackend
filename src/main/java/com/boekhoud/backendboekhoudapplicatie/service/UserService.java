@@ -29,7 +29,6 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // CREATE
     public UserDTO createUser(UserDTO userDTO, Long roleId) {
         User user = new User();
         user.setUsername(userDTO.getUsername());
@@ -43,18 +42,16 @@ public class UserService {
         return convertToDTO(savedUser);
     }
 
-    // READ - Get all users
     public List<UserDTO> getAllUsers() {
         return userDal.findAll().stream().map(user -> {
             UserDTO dto = new UserDTO();
             dto.setId(user.getId());
             dto.setUsername(user.getUsername());
-            dto.setRoleName(user.getRole().getName()); // Gebruik setRoleName
+            dto.setRoleName(user.getRole().getName());
             return dto;
         }).collect(Collectors.toList());
     }
 
-    // READ - Get user by ID
     public UserDTO getUserById(Long id) {
         User user = userDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
@@ -81,14 +78,12 @@ public class UserService {
         return convertToDTO(updatedUser);
     }
 
-    // DELETE
     public void deleteUser(Long id) {
         User user = userDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
         userDal.deleteById(user.getId());
     }
 
-    // Helper method to convert User to UserDTO
     private UserDTO convertToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
@@ -102,7 +97,6 @@ public class UserService {
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            // Controleer of het wachtwoord overeenkomt
             if (passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
                 return new LoginResponseDTO("Login successful!");
             } else {
@@ -112,4 +106,9 @@ public class UserService {
             return new LoginResponseDTO("User not found.");
         }
     }
+    public User findByUsername(String username) {
+        return userDal.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+    }
+
 }

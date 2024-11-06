@@ -4,7 +4,6 @@ public class LoginDTO {
     private String username;
     private String password;
 
-    // Getters en Setters
     public String getUsername() {
         return username;
     }

@@ -1,0 +1,12 @@
+package com.boekhoud.backendboekhoudapplicatie.service.dalinterface;
+
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.Invoice;
+import java.util.Optional;
+import java.util.List;
+
+public interface InvoiceDal {
+    Invoice save(Invoice invoice);
+    Optional<Invoice> findById(Long id);
+    List<Invoice> findAll();
+    void deleteById(Long id);
+}

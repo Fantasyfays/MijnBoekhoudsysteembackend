@@ -14,7 +14,6 @@ public class RoleInitializer {
     @Bean
     public CommandLineRunner initializeRoles(RoleRepository roleRepository) {
         return args -> {
-            // Definieer de vier benodigde rollen met beschrijvingen
             Map<String, String> roles = Map.of(
                     "ADMIN", "Beheerder van de applicatie met volledige toegangsrechten",
                     "ACCOUNTANTS BEDRIJF BEHEERDER", "Beheerder van het accountantsbedrijf, met rechten om klantbedrijven en accountants te beheren",

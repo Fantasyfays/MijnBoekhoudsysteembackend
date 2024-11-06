@@ -19,35 +19,30 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
-    // CREATE
     @PostMapping("/add")
     public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO) {
         CompanyDTO savedCompany = companyService.createCompany(companyDTO);
         return ResponseEntity.ok(savedCompany);
     }
 
-    // READ - Get all companies
     @GetMapping
     public ResponseEntity<List<CompanyDTO>> getAllCompanies() {
         List<CompanyDTO> companyDTOs = companyService.getAllCompanies();
         return ResponseEntity.ok(companyDTOs);
     }
 
-    // READ - Get company by ID
     @GetMapping("/{id}")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Long id) {
         CompanyDTO companyDTO = companyService.getCompanyById(id);
         return ResponseEntity.ok(companyDTO);
     }
 
-    // UPDATE
     @PutMapping("/{id}")
     public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Long id, @RequestBody CompanyDTO companyDTO) {
         CompanyDTO updatedCompany = companyService.updateCompany(id, companyDTO);
         return ResponseEntity.ok(updatedCompany);
     }
 
-    // DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         companyService.deleteCompany(id);

@@ -9,7 +9,6 @@ public class RoleDTO {
         this.name = name;
     }
 
-    // Getters en setters
     public Long getId() {
         return id;
     }

@@ -19,28 +19,24 @@ public class CompanyService {
         this.companyDal = companyDal;
     }
 
-    // CREATE
     public CompanyDTO createCompany(CompanyDTO companyDTO) {
         Company company = convertToEntity(companyDTO);
         Company savedCompany = companyDal.save(company);
         return convertToDTO(savedCompany);
     }
 
-    // READ - Get all companies
     public List<CompanyDTO> getAllCompanies() {
         return companyDal.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // READ - Get company by ID
     public CompanyDTO getCompanyById(Long id) {
         Company company = companyDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
         return convertToDTO(company);
     }
 
-    // UPDATE
     public CompanyDTO updateCompany(Long id, CompanyDTO companyDTO) {
         Company company = companyDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
@@ -53,12 +49,10 @@ public class CompanyService {
         return convertToDTO(updatedCompany);
     }
 
-    // DELETE
     public void deleteCompany(Long id) {
         companyDal.deleteById(id);
     }
 
-    // Helper methods to convert between Company and CompanyDTO
     private CompanyDTO convertToDTO(Company company) {
         CompanyDTO dto = new CompanyDTO();
         dto.setId(company.getId());

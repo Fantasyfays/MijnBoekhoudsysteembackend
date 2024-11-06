@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Entity
-@Data // Lombok genereert automatisch getters en setters
-@NoArgsConstructor // Lege constructor voor JPA
-@AllArgsConstructor // Constructor met alle velden
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Accountant {
 
     @Id
