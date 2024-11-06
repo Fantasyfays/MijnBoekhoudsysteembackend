@@ -1,6 +1,5 @@
-package com.boekhoud.backendboekhoudapplicatie.dal.dalimpl;
+package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
-import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.UserDal;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class UserDalImpl implements UserDal {
+public class UserDal implements com.boekhoud.backendboekhoudapplicatie.service.dalinterface.UserDal {
 
     private final UserRepository userRepository;
 
     @Autowired
-    public UserDalImpl(UserRepository userRepository) {
+    public UserDal(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

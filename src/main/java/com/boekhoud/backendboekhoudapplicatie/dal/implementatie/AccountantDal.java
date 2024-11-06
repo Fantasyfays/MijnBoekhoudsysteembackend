@@ -1,6 +1,5 @@
-package com.boekhoud.backendboekhoudapplicatie.dal.dalimpl;
+package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
-import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.AccountantDal;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Accountant;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.AccountantRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class AccountantDalImpl implements AccountantDal {
+public class AccountantDal implements com.boekhoud.backendboekhoudapplicatie.service.dalinterface.AccountantDal {
 
     private final AccountantRepository accountantRepository;
 

@@ -1,6 +1,5 @@
-package com.boekhoud.backendboekhoudapplicatie.dal.dalimpl;
+package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
-import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.CompanyDal;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Company;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +9,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class CompanyDalImpl implements CompanyDal {
+public class CompanyDal implements com.boekhoud.backendboekhoudapplicatie.service.dalinterface.CompanyDal {
 
     private final CompanyRepository companyRepository;
 
     @Autowired
-    public CompanyDalImpl(CompanyRepository companyRepository) {
+    public CompanyDal(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
     }
 

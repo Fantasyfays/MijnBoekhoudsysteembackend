@@ -1,7 +1,6 @@
 package com.boekhoud.backendboekhoudapplicatie.service;
 
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Invoice;
-import com.boekhoud.backendboekhoudapplicatie.dal.entity.InvoiceItem;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.InvoiceRepository;
 import com.boekhoud.backendboekhoudapplicatie.dto.InvoiceDTO;
 import com.boekhoud.backendboekhoudapplicatie.dto.InvoiceItemDTO;
