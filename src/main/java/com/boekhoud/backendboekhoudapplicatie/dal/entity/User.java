@@ -1,15 +1,18 @@
 package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "users")
+import java.util.List;
+
 @Data
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -17,9 +20,11 @@ public class User {
     private Long id;
 
     private String username;
+
+    @JsonIgnore
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id")
-    private Role role;
+    @Enumerated(EnumType.STRING)
+    private RoleType role;
+
 }

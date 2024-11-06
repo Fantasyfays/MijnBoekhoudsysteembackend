@@ -1,11 +1,9 @@
+// UserService.java
 package com.boekhoud.backendboekhoudapplicatie.service;
 
-import com.boekhoud.backendboekhoudapplicatie.dto.LoginDTO;
-import com.boekhoud.backendboekhoudapplicatie.dto.LoginResponseDTO;
 import com.boekhoud.backendboekhoudapplicatie.dto.UserDTO;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
-import com.boekhoud.backendboekhoudapplicatie.dal.entity.Role;
-import com.boekhoud.backendboekhoudapplicatie.dal.repository.RoleRepository;
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.RoleType;
 import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.UserDal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,37 +17,28 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserDal userDal;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserDal userDal, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserDal userDal, PasswordEncoder passwordEncoder) {
         this.userDal = userDal;
-        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDTO createUser(UserDTO userDTO, Long roleId) {
+    public UserDTO createUser(UserDTO userDTO, RoleType role) {
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
-        user.setRole(role);
+        user.setRole(role); // Gebruik een enkele RoleType
 
         User savedUser = userDal.save(user);
         return convertToDTO(savedUser);
     }
 
     public List<UserDTO> getAllUsers() {
-        return userDal.findAll().stream().map(user -> {
-            UserDTO dto = new UserDTO();
-            dto.setId(user.getId());
-            dto.setUsername(user.getUsername());
-            dto.setRoleName(user.getRole().getName());
-            return dto;
-        }).collect(Collectors.toList());
+        return userDal.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     public UserDTO getUserById(Long id) {
@@ -58,7 +47,7 @@ public class UserService {
         return convertToDTO(user);
     }
 
-    public UserDTO updateUser(Long id, UserDTO userDTO, Long roleId) {
+    public UserDTO updateUser(Long id, UserDTO userDTO, RoleType role) {
         User user = userDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
@@ -68,9 +57,7 @@ public class UserService {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
 
-        if (roleId != null) {
-            Role role = roleRepository.findById(roleId)
-                    .orElseThrow(() -> new RuntimeException("Role not found with id: " + roleId));
+        if (role != null) {
             user.setRole(role);
         }
 
@@ -79,36 +66,14 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
-        User user = userDal.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        userDal.deleteById(user.getId());
+        userDal.deleteById(id);
     }
 
     private UserDTO convertToDTO(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setUsername(user.getUsername());
-        userDTO.setRoleName(user.getRole() != null ? user.getRole().getName() : null); // Gebruik setRoleName
+        userDTO.setRole(user.getRole());
         return userDTO;
     }
-
-    public LoginResponseDTO login(LoginDTO loginDTO) {
-        Optional<User> userOpt = userDal.findByUsername(loginDTO.getUsername());
-
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-                return new LoginResponseDTO("Login successful!");
-            } else {
-                return new LoginResponseDTO("Invalid password.");
-            }
-        } else {
-            return new LoginResponseDTO("User not found.");
-        }
-    }
-    public User findByUsername(String username) {
-        return userDal.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-    }
-
 }

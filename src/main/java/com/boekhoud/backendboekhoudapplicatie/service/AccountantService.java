@@ -1,13 +1,13 @@
+// AccountantService.java
 package com.boekhoud.backendboekhoudapplicatie.service;
 
 import com.boekhoud.backendboekhoudapplicatie.dto.AccountantDTO;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Accountant;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Company;
-import com.boekhoud.backendboekhoudapplicatie.dal.entity.Role;
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.RoleType;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
 import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.AccountantDal;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.CompanyRepository;
-import com.boekhoud.backendboekhoudapplicatie.dal.repository.RoleRepository;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +22,6 @@ public class AccountantService {
 
     private final AccountantDal accountantDal;
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -34,15 +33,13 @@ public class AccountantService {
         user.setUsername(accountantDTO.getUsername());
         user.setPassword(passwordEncoder.encode(accountantDTO.getPassword()));
 
-        Role accountantRole = roleRepository.findByName("ACCOUNTANT")
-                .orElseThrow(() -> new RuntimeException("Accountant role not found"));
-        user.setRole(accountantRole);
+        // Stel de rol in met een enkele RoleType in plaats van een lijst
+        user.setRole(RoleType.ACCOUNTANT);
         User savedUser = userRepository.save(user);
 
         Accountant accountant = new Accountant();
         accountant.setUser(savedUser);
         accountant.setCompany(company);
-
         accountant.setFirstName(accountantDTO.getFirstName());
         accountant.setLastName(accountantDTO.getLastName());
         accountant.setPhoneNumber(accountantDTO.getPhoneNumber());
@@ -55,7 +52,6 @@ public class AccountantService {
         Accountant savedAccountant = accountantDal.save(accountant);
         return convertToDTO(savedAccountant);
     }
-
 
     public List<AccountantDTO> getAllAccountants() {
         return accountantDal.findAll().stream()
