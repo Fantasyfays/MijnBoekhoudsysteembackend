@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: 17
-          distribution: 'zulu' 
+          distribution: 'zulu'  
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
@@ -48,4 +48,4 @@ jobs:
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=Fantasyfays_MijnBoekhoudsysteembackend \
             -Dsonar.qualitygate.wait=true \
-            -Dsonar.duplication.max=3 # Set duplication limit to 4%
+            -Dsonar.duplication.max=4 # Set duplication limit to 4%
