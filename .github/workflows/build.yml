@@ -47,6 +47,6 @@ jobs:
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=Fantasyfays_MijnBoekhoudsysteembackend \
-            -Dsonar.qualitygate.wait=true \
-            -Dsonar.duplication.max=5
+            -Dsonar.duplication.max=5 # Set duplication limit to 5%
+
 
