@@ -2,6 +2,7 @@ package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Accountant;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.AccountantRepository;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IAccountantDal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class AccountantDal implements com.boekhoud.backendboekhoudapplicatie.service.dalinterface.AccountantDal {
+public class AccountantDal implements IAccountantDal {
 
     private final AccountantRepository accountantRepository;
 

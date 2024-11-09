@@ -6,7 +6,7 @@ import com.boekhoud.backendboekhoudapplicatie.dal.entity.Accountant;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Company;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.RoleType;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
-import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.AccountantDal;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IAccountantDal;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.CompanyRepository;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountantService {
 
-    private final AccountantDal accountantDal;
+    private final IAccountantDal IAccountantDal;
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
@@ -49,24 +49,24 @@ public class AccountantService {
         accountant.setDateOfHire(accountantDTO.getDateOfHire());
         accountant.setActiveStatus(accountantDTO.getActiveStatus());
 
-        Accountant savedAccountant = accountantDal.save(accountant);
+        Accountant savedAccountant = IAccountantDal.save(accountant);
         return convertToDTO(savedAccountant);
     }
 
     public List<AccountantDTO> getAllAccountants() {
-        return accountantDal.findAll().stream()
+        return IAccountantDal.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public AccountantDTO getAccountantById(Long id) {
-        Accountant accountant = accountantDal.findById(id)
+        Accountant accountant = IAccountantDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("Accountant not found"));
         return convertToDTO(accountant);
     }
 
     public AccountantDTO updateAccountant(Long id, AccountantDTO accountantDTO) {
-        Accountant accountant = accountantDal.findById(id)
+        Accountant accountant = IAccountantDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("Accountant not found"));
 
         accountant.setFirstName(accountantDTO.getFirstName());
@@ -84,12 +84,12 @@ public class AccountantService {
             accountant.setCompany(company);
         }
 
-        Accountant updatedAccountant = accountantDal.save(accountant);
+        Accountant updatedAccountant = IAccountantDal.save(accountant);
         return convertToDTO(updatedAccountant);
     }
 
     public void deleteAccountant(Long id) {
-        accountantDal.deleteById(id);
+        IAccountantDal.deleteById(id);
     }
 
     private AccountantDTO convertToDTO(Accountant accountant) {

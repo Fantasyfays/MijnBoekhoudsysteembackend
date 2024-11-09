@@ -2,6 +2,7 @@ package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Company;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.CompanyRepository;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.ICompanyDal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class CompanyDal implements com.boekhoud.backendboekhoudapplicatie.service.dalinterface.CompanyDal {
+public class CompanyDal implements ICompanyDal {
 
     private final CompanyRepository companyRepository;
 

@@ -2,7 +2,7 @@ package com.boekhoud.backendboekhoudapplicatie.service;
 
 import com.boekhoud.backendboekhoudapplicatie.dto.CompanyDTO;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Company;
-import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.CompanyDal;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.ICompanyDal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,45 +12,45 @@ import java.util.stream.Collectors;
 @Service
 public class CompanyService {
 
-    private final CompanyDal companyDal;
+    private final ICompanyDal ICompanyDal;
 
     @Autowired
-    public CompanyService(CompanyDal companyDal) {
-        this.companyDal = companyDal;
+    public CompanyService(ICompanyDal ICompanyDal) {
+        this.ICompanyDal = ICompanyDal;
     }
 
     public CompanyDTO createCompany(CompanyDTO companyDTO) {
         Company company = convertToEntity(companyDTO);
-        Company savedCompany = companyDal.save(company);
+        Company savedCompany = ICompanyDal.save(company);
         return convertToDTO(savedCompany);
     }
 
     public List<CompanyDTO> getAllCompanies() {
-        return companyDal.findAll().stream()
+        return ICompanyDal.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public CompanyDTO getCompanyById(Long id) {
-        Company company = companyDal.findById(id)
+        Company company = ICompanyDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
         return convertToDTO(company);
     }
 
     public CompanyDTO updateCompany(Long id, CompanyDTO companyDTO) {
-        Company company = companyDal.findById(id)
+        Company company = ICompanyDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("Company not found with id: " + id));
 
         company.setName(companyDTO.getName());
         company.setAddress(companyDTO.getAddress());
         company.setEmail(companyDTO.getEmail());
 
-        Company updatedCompany = companyDal.save(company);
+        Company updatedCompany = ICompanyDal.save(company);
         return convertToDTO(updatedCompany);
     }
 
     public void deleteCompany(Long id) {
-        companyDal.deleteById(id);
+        ICompanyDal.deleteById(id);
     }
 
     private CompanyDTO convertToDTO(Company company) {

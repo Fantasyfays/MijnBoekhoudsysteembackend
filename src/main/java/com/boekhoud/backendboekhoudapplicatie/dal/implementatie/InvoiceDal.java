@@ -2,6 +2,7 @@ package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Invoice;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.InvoiceRepository;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IInvoiceDal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class InvoiceDal implements com.boekhoud.backendboekhoudapplicatie.service.dalinterface.InvoiceDal {
+public class InvoiceDal implements IInvoiceDal {
 
     @Autowired
     private InvoiceRepository invoiceRepository;

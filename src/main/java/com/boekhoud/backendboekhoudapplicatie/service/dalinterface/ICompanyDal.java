@@ -5,7 +5,7 @@ import com.boekhoud.backendboekhoudapplicatie.dal.entity.Company;
 import java.util.List;
 import java.util.Optional;
 
-public interface CompanyDal {
+public interface ICompanyDal {
     Company save(Company company);
 
     List<Company> findAll();

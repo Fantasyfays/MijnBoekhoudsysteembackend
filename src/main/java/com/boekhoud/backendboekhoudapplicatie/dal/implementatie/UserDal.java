@@ -2,6 +2,7 @@ package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IUserDal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
-public class UserDal implements com.boekhoud.backendboekhoudapplicatie.service.dalinterface.UserDal {
+public class UserDal implements IUserDal {
 
     private final UserRepository userRepository;
 
