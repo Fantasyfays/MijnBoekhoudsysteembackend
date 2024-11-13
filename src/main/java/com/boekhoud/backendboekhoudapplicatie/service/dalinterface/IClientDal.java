@@ -1,8 +1,6 @@
 package com.boekhoud.backendboekhoudapplicatie.service.dalinterface;
 
-
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Client;
-
 import java.util.List;
 import java.util.Optional;
 

@@ -12,8 +12,12 @@ import java.util.Optional;
 @Component
 public class InvoiceDal implements IInvoiceDal {
 
+    private final InvoiceRepository invoiceRepository;
+
     @Autowired
-    private InvoiceRepository invoiceRepository;
+    public InvoiceDal(InvoiceRepository invoiceRepository) {
+        this.invoiceRepository = invoiceRepository;
+    }
 
     @Override
     public Invoice save(Invoice invoice) {

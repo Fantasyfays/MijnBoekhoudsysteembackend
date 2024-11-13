@@ -2,7 +2,6 @@ package com.boekhoud.backendboekhoudapplicatie.service;
 
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Client;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Company;
-import com.boekhoud.backendboekhoudapplicatie.enums.RoleType;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.ClientRepository;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.CompanyRepository;
@@ -10,6 +9,7 @@ import com.boekhoud.backendboekhoudapplicatie.dal.repository.UserRepository;
 import com.boekhoud.backendboekhoudapplicatie.dto.ClientDTO;
 import com.boekhoud.backendboekhoudapplicatie.dto.CreateClientDTO;
 import com.boekhoud.backendboekhoudapplicatie.dto.UpdateClientDTO;
+import com.boekhoud.backendboekhoudapplicatie.enums.RoleType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

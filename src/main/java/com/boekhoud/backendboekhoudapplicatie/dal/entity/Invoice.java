@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
 @Entity
@@ -43,7 +42,6 @@ public class Invoice {
     @JoinColumn(name = "client_id")
     private Client client;
 
-    // New status field
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
 }

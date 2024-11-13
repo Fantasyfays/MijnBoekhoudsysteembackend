@@ -12,7 +12,7 @@ public class InvoicePdfGenerator {
     private static final Logger logger = Logger.getLogger(InvoicePdfGenerator.class.getName());
 
     public static ByteArrayOutputStream generateInvoicePdf(Invoice invoice) {
-        Document document = new Document(PageSize.A4, 50, 50, 50, 50); // Add margins
+        Document document = new Document(PageSize.A4, 50, 50, 50, 50);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {

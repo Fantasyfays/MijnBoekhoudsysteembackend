@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.List;
 
 @Entity
@@ -16,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Client {
+public class Client implements CompanyEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +25,11 @@ public class Client {
     private String address;
 
     @NotNull
-    @Size(min = 8, max = 20) // Adjust according to your KvK number format
+    @Size(min = 8, max = 20)
     private String kvkNumber;
 
     @NotNull
-    @Size(min = 10, max = 20) // Adjust to match typical tax number format
+    @Size(min = 10, max = 20)
     private String taxNumber;
 
     private String bankAccountNumber;
@@ -55,4 +54,9 @@ public class Client {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @Override
+    public Company getCompany() {
+        return this.company;
+    }
 }

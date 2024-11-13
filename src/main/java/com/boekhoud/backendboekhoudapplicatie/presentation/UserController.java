@@ -1,6 +1,5 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation;
 
-import com.boekhoud.backendboekhoudapplicatie.enums.RoleType;
 import com.boekhoud.backendboekhoudapplicatie.dto.*;
 import com.boekhoud.backendboekhoudapplicatie.exception.InvalidCredentialsException;
 import com.boekhoud.backendboekhoudapplicatie.exception.UserNotFoundException;
@@ -27,8 +26,7 @@ public class UserController {
     @PostMapping("/create")
     public ResponseEntity<UserDTO> registerUser(@RequestBody CreateUserDTO createUserDTO, @RequestParam Long roleId) {
         try {
-            RoleType roleType = convertRoleIdToRoleType(roleId);
-            UserDTO newUser = userService.createUser(createUserDTO, roleType);
+            UserDTO newUser = userService.createUser(createUserDTO, roleId);
             return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -51,8 +49,7 @@ public class UserController {
                                         @RequestBody UpdateUserDTO updateUserDTO,
                                         @RequestParam(required = false) Long roleId) {
         try {
-            RoleType roleType = roleId != null ? convertRoleIdToRoleType(roleId) : null;
-            UserDTO updatedUser = userService.updateUser(id, updateUserDTO, roleType != null ? roleType.name() : null);
+            UserDTO updatedUser = userService.updateUser(id, updateUserDTO, roleId);
             return ResponseEntity.ok(updatedUser);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
@@ -98,15 +95,6 @@ public class UserController {
             return ResponseEntity.noContent().build();
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    private RoleType convertRoleIdToRoleType(Long roleId) {
-        switch (roleId.intValue()) {
-            case 1: return RoleType.ADMIN;
-            case 2: return RoleType.CLIENT;
-            case 3: return RoleType.ACCOUNTANT;
-            default: throw new IllegalArgumentException("Invalid roleId: " + roleId);
         }
     }
 }

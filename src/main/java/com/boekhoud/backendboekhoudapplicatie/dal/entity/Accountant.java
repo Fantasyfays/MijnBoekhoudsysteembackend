@@ -4,14 +4,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Accountant {
+public class Accountant implements CompanyEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,4 +32,9 @@ public class Accountant {
     private String officeLocation;
     private LocalDate dateOfHire;
     private Boolean activeStatus;
+
+    @Override
+    public Company getCompany() {
+        return this.company;
+    }
 }

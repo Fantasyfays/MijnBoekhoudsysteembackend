@@ -1,24 +1,26 @@
 package com.boekhoud.backendboekhoudapplicatie.service;
 
-import com.boekhoud.backendboekhoudapplicatie.dal.entity.Client;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Invoice;
-import com.boekhoud.backendboekhoudapplicatie.dal.repository.ClientRepository;
-import com.boekhoud.backendboekhoudapplicatie.dal.repository.InvoiceRepository;
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.Client;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IInvoiceDal;
+import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IClientDal;
 import com.boekhoud.backendboekhoudapplicatie.dto.CreateInvoiceDTO;
 import com.boekhoud.backendboekhoudapplicatie.dto.InvoiceDTO;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -26,124 +28,158 @@ public class InvoiceService {
 
     private static final Logger logger = LoggerFactory.getLogger(InvoiceService.class);
 
-    private final InvoiceRepository invoiceRepository;
-    private final ClientRepository clientRepository;
+    private final IInvoiceDal invoiceDal;
     private final InvoicePdfService invoicePdfService;
+    private final IClientDal clientDal;
 
     @Autowired
-    public InvoiceService(InvoiceRepository invoiceRepository, ClientRepository clientRepository, InvoicePdfService invoicePdfService) {
-        this.invoiceRepository = invoiceRepository;
-        this.clientRepository = clientRepository;
+    public InvoiceService(IInvoiceDal invoiceDal, InvoicePdfService invoicePdfService, IClientDal clientDal) {
+        this.invoiceDal = invoiceDal;
         this.invoicePdfService = invoicePdfService;
+        this.clientDal = clientDal;
     }
 
     private String generateUUIDInvoiceNumber() {
         return "INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
+    private LocalDate convertStringToLocalDate(String dateString) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(dateString, formatter);
+    }
+
+    private InvoiceDTO convertToDTO(Invoice invoice) {
+        return new InvoiceDTO(
+                invoice.getId(),
+                invoice.getInvoiceNumber(),
+                invoice.getInvoiceDate(),
+                invoice.getDueDate(),
+                invoice.getDescription(),
+                invoice.getQuantity(),
+                invoice.getUnitPrice(),
+                invoice.getSubtotal(),
+                invoice.getTax(),
+                invoice.getTotalAmount(),
+                invoice.getBicSwiftNumber(),
+                invoice.getPaymentTerms(),
+                invoice.getPaymentCurrency(),
+                invoice.getRecipientName(),
+                invoice.getRecipientCompany(),
+                invoice.getRecipientAddress(),
+                invoice.getRecipientEmail()
+        );
+    }
+
     public InvoiceDTO createInvoice(CreateInvoiceDTO createInvoiceDTO, Long clientId) {
-        logger.info("Creating invoice for client with ID: {}", clientId);
+        if (createInvoiceDTO.getQuantity() <= 0) {
+            throw new IllegalArgumentException("Quantity must be at least 1.");
+        }
+        if (clientId == null) {
+            throw new IllegalArgumentException("Client must be specified for the invoice.");
+        }
+        Client client = clientDal.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + clientId));
 
-        Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> {
-                    logger.error("Client not found with ID: {}", clientId);
-                    return new IllegalArgumentException("Client not found with ID: " + clientId);
-                });
+        LocalDate invoiceDate = convertStringToLocalDate(createInvoiceDTO.getInvoiceDate().toString());
+        LocalDate dueDate = convertStringToLocalDate(createInvoiceDTO.getDueDate().toString());
 
-        Invoice invoice = buildInvoice(createInvoiceDTO, client);
+        Invoice invoice = new Invoice();
         invoice.setInvoiceNumber(generateUUIDInvoiceNumber());
+        invoice.setInvoiceDate(invoiceDate);
+        invoice.setDueDate(dueDate);
+        invoice.setDescription(createInvoiceDTO.getDescription());
+        invoice.setQuantity(createInvoiceDTO.getQuantity());
+        invoice.setUnitPrice(createInvoiceDTO.getUnitPrice());
+        invoice.setClient(client);
 
-        logger.info("Generated invoice number: {}", invoice.getInvoiceNumber());
+        invoice.setBicSwiftNumber(createInvoiceDTO.getBicSwiftNumber());
+        invoice.setPaymentTerms(createInvoiceDTO.getPaymentTerms());
+        invoice.setPaymentCurrency(createInvoiceDTO.getPaymentCurrency());
+        invoice.setRecipientName(createInvoiceDTO.getRecipientName());
+        invoice.setRecipientCompany(createInvoiceDTO.getRecipientCompany());
+        invoice.setRecipientAddress(createInvoiceDTO.getRecipientAddress());
+        invoice.setRecipientEmail(createInvoiceDTO.getRecipientEmail());
 
-        Invoice savedInvoice = invoiceRepository.save(invoice);
-        logger.info("Invoice with ID {} created successfully", savedInvoice.getId());
+        double subtotal = createInvoiceDTO.getQuantity() * createInvoiceDTO.getUnitPrice();
+        double tax = (subtotal * createInvoiceDTO.getTaxRate()) / 100;
+        double totalAmount = subtotal + tax;
+
+        invoice.setSubtotal(subtotal);
+        invoice.setTax(tax);
+        invoice.setTotalAmount(totalAmount);
+
+        Invoice savedInvoice = invoiceDal.save(invoice);
 
         return convertToDTO(savedInvoice);
     }
 
-    public ResponseEntity<InputStreamResource> generateInvoicePdf(Long invoiceId) throws DocumentException, IOException {
-        logger.info("Generating PDF for invoice ID: {}", invoiceId);
+    public ResponseEntity<InputStreamResource> generateInvoicePdf(Long invoiceId) throws IOException {
+        try {
+            Invoice invoice = invoiceDal.findById(invoiceId)
+                    .orElseThrow(() -> new RuntimeException("Invoice not found with ID: " + invoiceId));
 
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> {
-                    logger.error("Invoice not found with ID: {}", invoiceId);
-                    return new IllegalArgumentException("Invoice not found with ID: " + invoiceId);
-                });
+            if (invoice.getClient() == null) {
+                throw new IllegalStateException("Client is not set for this invoice.");
+            }
 
-        ByteArrayOutputStream pdfStream = invoicePdfService.generatePdf(invoice);
+            ByteArrayOutputStream pdfStream = invoicePdfService.generatePdf(invoice);
+            InputStreamResource pdfResource = new InputStreamResource(new ByteArrayInputStream(pdfStream.toByteArray()));
 
-        InputStreamResource pdfResource = new InputStreamResource(new ByteArrayInputStream(pdfStream.toByteArray()));
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=invoice_" + invoice.getInvoiceNumber() + ".pdf");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=invoice_" + invoice.getInvoiceNumber() + ".pdf");
-
-        logger.info("PDF generated for invoice ID: {}", invoiceId);
-
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfResource);
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfResource);
+        } catch (IOException | DocumentException e) {
+            logger.error("Error generating PDF for invoice ID: {}", invoiceId, e);
+            throw new IOException("Error generating PDF for invoice ID: " + invoiceId, e);
+        } catch (IllegalStateException e) {
+            logger.error("Error with invoice: {}", invoiceId, e);
+            throw e;
+        }
     }
-    private Invoice buildInvoice(CreateInvoiceDTO createInvoiceDTO, Client client) {
-        double subtotal = calculateSubtotal(createInvoiceDTO.getQuantity(), createInvoiceDTO.getUnitPrice());
-        double tax = calculateTax(subtotal, createInvoiceDTO.getTaxRate());
+
+    public InvoiceDTO getInvoiceById(Long id) {
+        Invoice invoice = invoiceDal.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with ID: " + id));
+
+        return convertToDTO(invoice);
+    }
+
+    public InvoiceDTO updateInvoice(Long id, CreateInvoiceDTO createInvoiceDTO) {
+        Invoice invoice = invoiceDal.findById(id)
+                .orElseThrow(() -> new RuntimeException("Invoice not found with ID: " + id));
+
+        invoice.setInvoiceNumber(createInvoiceDTO.getInvoiceNumber());
+        invoice.setInvoiceDate(convertStringToLocalDate(createInvoiceDTO.getInvoiceDate().toString()));
+        invoice.setDueDate(convertStringToLocalDate(createInvoiceDTO.getDueDate().toString()));
+        invoice.setDescription(createInvoiceDTO.getDescription());
+        invoice.setQuantity(createInvoiceDTO.getQuantity());
+        invoice.setUnitPrice(createInvoiceDTO.getUnitPrice());
+        invoice.setBicSwiftNumber(createInvoiceDTO.getBicSwiftNumber());
+        invoice.setPaymentTerms(createInvoiceDTO.getPaymentTerms());
+        invoice.setPaymentCurrency(createInvoiceDTO.getPaymentCurrency());
+        invoice.setRecipientName(createInvoiceDTO.getRecipientName());
+        invoice.setRecipientCompany(createInvoiceDTO.getRecipientCompany());
+        invoice.setRecipientAddress(createInvoiceDTO.getRecipientAddress());
+        invoice.setRecipientEmail(createInvoiceDTO.getRecipientEmail());
+
+        double subtotal = createInvoiceDTO.getQuantity() * createInvoiceDTO.getUnitPrice();
+        double tax = (subtotal * createInvoiceDTO.getTaxRate()) / 100;
         double totalAmount = subtotal + tax;
 
-        // Log de waarden van de recipient velden
-        logger.info("Recipient Name: {}", createInvoiceDTO.getRecipientName());
-        logger.info("Recipient Company: {}", createInvoiceDTO.getRecipientCompany());
-        logger.info("Recipient Address: {}", createInvoiceDTO.getRecipientAddress());
-        logger.info("Recipient Email: {}", createInvoiceDTO.getRecipientEmail());
+        invoice.setSubtotal(subtotal);
+        invoice.setTax(tax);
+        invoice.setTotalAmount(totalAmount);
 
-        return Invoice.builder()
-                .invoiceNumber(createInvoiceDTO.getInvoiceNumber())
-                .invoiceDate(createInvoiceDTO.getInvoiceDate())
-                .dueDate(createInvoiceDTO.getDueDate())
-                .description(createInvoiceDTO.getDescription())
-                .quantity(createInvoiceDTO.getQuantity())
-                .unitPrice(createInvoiceDTO.getUnitPrice())
-                .subtotal(subtotal)
-                .tax(tax)
-                .totalAmount(totalAmount)
-                .bicSwiftNumber(createInvoiceDTO.getBicSwiftNumber())
-                .paymentTerms(createInvoiceDTO.getPaymentTerms())
-                .paymentCurrency(createInvoiceDTO.getPaymentCurrency())
-                .recipientName(createInvoiceDTO.getRecipientName())
-                .recipientCompany(createInvoiceDTO.getRecipientCompany())
-                .recipientAddress(createInvoiceDTO.getRecipientAddress())
-                .recipientEmail(createInvoiceDTO.getRecipientEmail())
-                .client(client)
-                .build();
+        Invoice updatedInvoice = invoiceDal.save(invoice);
+
+        return convertToDTO(updatedInvoice);
     }
 
-
-    private double calculateSubtotal(int quantity, double unitPrice) {
-        return quantity * unitPrice;
-    }
-
-    private double calculateTax(double subtotal, double taxRate) {
-        return subtotal * (taxRate / 100.0);
-    }
-
-    InvoiceDTO convertToDTO(Invoice invoice) {
-        return InvoiceDTO.builder()
-                .id(invoice.getId())
-                .invoiceNumber(invoice.getInvoiceNumber())
-                .invoiceDate(invoice.getInvoiceDate())
-                .dueDate(invoice.getDueDate())
-                .description(invoice.getDescription())
-                .quantity(invoice.getQuantity())
-                .unitPrice(invoice.getUnitPrice())
-                .subtotal(invoice.getSubtotal())
-                .tax(invoice.getTax())
-                .totalAmount(invoice.getTotalAmount())
-                .bicSwiftNumber(invoice.getBicSwiftNumber())
-                .paymentTerms(invoice.getPaymentTerms())
-                .paymentCurrency(invoice.getPaymentCurrency())
-                .recipientName(invoice.getRecipientName())
-                .recipientCompany(invoice.getRecipientCompany())
-                .recipientAddress(invoice.getRecipientAddress())
-                .recipientEmail(invoice.getRecipientEmail())
-                .build();
+    public void deleteInvoice(Long id) {
+        invoiceDal.deleteById(id);
     }
 }

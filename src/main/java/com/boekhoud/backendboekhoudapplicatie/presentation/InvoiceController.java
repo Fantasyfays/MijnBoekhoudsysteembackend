@@ -22,16 +22,37 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
-    @PostMapping("/create")
+    // Pas de URL aan om het companyId te bevatten
+    @PostMapping("/create/{companyId}")
     public ResponseEntity<InvoiceDTO> createInvoice(
             @RequestBody CreateInvoiceDTO createInvoiceDTO,
-            @RequestParam("clientId") Long clientId) {
-        InvoiceDTO newInvoice = invoiceService.createInvoice(createInvoiceDTO, clientId);
+            @PathVariable Long companyId) {  // Hier het companyId uit de URL halen
+        InvoiceDTO newInvoice = invoiceService.createInvoice(createInvoiceDTO, companyId);
         return ResponseEntity.status(201).body(newInvoice);
     }
 
+    @GetMapping("/{invoiceId}")
+    public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable Long invoiceId) {
+        InvoiceDTO invoice = invoiceService.getInvoiceById(invoiceId);
+        return ResponseEntity.ok(invoice);
+    }
+
     @GetMapping("/generate-pdf/{invoiceId}")
-    public ResponseEntity<InputStreamResource> downloadInvoicePdf(@PathVariable Long invoiceId) throws DocumentException, IOException {
+    public ResponseEntity<InputStreamResource> downloadInvoicePdf(@PathVariable Long invoiceId) throws IOException, DocumentException {
         return invoiceService.generateInvoicePdf(invoiceId);
+    }
+
+    @PutMapping("/{invoiceId}")
+    public ResponseEntity<InvoiceDTO> updateInvoice(
+            @PathVariable Long invoiceId,
+            @RequestBody CreateInvoiceDTO createInvoiceDTO) {
+        InvoiceDTO updatedInvoice = invoiceService.updateInvoice(invoiceId, createInvoiceDTO);
+        return ResponseEntity.ok(updatedInvoice);
+    }
+
+    @DeleteMapping("/{invoiceId}")
+    public ResponseEntity<Void> deleteInvoice(@PathVariable Long invoiceId) {
+        invoiceService.deleteInvoice(invoiceId);
+        return ResponseEntity.noContent().build();
     }
 }
