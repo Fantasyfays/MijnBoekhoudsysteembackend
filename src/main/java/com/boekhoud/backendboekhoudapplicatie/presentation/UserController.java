@@ -1,13 +1,13 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation;
 
-import com.boekhoud.backendboekhoudapplicatie.dal.entity.RoleType;
-import com.boekhoud.backendboekhoudapplicatie.dto.CreateUserDTO;
-import com.boekhoud.backendboekhoudapplicatie.dto.EditUserDTO;
-import com.boekhoud.backendboekhoudapplicatie.dto.UserLoginDTO;
-import com.boekhoud.backendboekhoudapplicatie.dto.UserDTO;
+import com.boekhoud.backendboekhoudapplicatie.enums.RoleType;
+import com.boekhoud.backendboekhoudapplicatie.dto.*;
+import com.boekhoud.backendboekhoudapplicatie.exception.InvalidCredentialsException;
+import com.boekhoud.backendboekhoudapplicatie.exception.UserNotFoundException;
 import com.boekhoud.backendboekhoudapplicatie.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,17 +25,14 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public UserDTO registerUser(@RequestBody CreateUserDTO createUserDTO, @RequestParam Long roleId) {
-        RoleType roleType = convertRoleIdToRoleType(roleId);
-        return userService.createUser(createUserDTO, roleType);
-    }
-
-    private RoleType convertRoleIdToRoleType(Long roleId) {
-        if (roleId == 1L) return RoleType.ADMIN;
-        if (roleId == 2L) return RoleType.CLIENT;
-        if (roleId == 3L) return RoleType.ACCOUNTANT;
-
-        throw new IllegalArgumentException("Invalid roleId: " + roleId);
+    public ResponseEntity<UserDTO> registerUser(@RequestBody CreateUserDTO createUserDTO, @RequestParam Long roleId) {
+        try {
+            RoleType roleType = convertRoleIdToRoleType(roleId);
+            UserDTO newUser = userService.createUser(createUserDTO, roleType);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
     @PostMapping("/login")
@@ -44,28 +41,72 @@ public class UserController {
             UserDTO loggedInUser = userService.loginUser(loginDTO);
             session.setAttribute("loggedInUser", loggedInUser);
             return ResponseEntity.ok(loggedInUser);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401).body(null);
+        } catch (InvalidCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(@PathVariable Long id, @RequestBody EditUserDTO editUserDTO, @RequestParam(required = false) String role) {
-        return userService.updateUser(id, editUserDTO, role);
+    public ResponseEntity<?> updateUser(@PathVariable Long id,
+                                        @RequestBody UpdateUserDTO updateUserDTO,
+                                        @RequestParam(required = false) Long roleId) {
+        try {
+            RoleType roleType = roleId != null ? convertRoleIdToRoleType(roleId) : null;
+            UserDTO updatedUser = userService.updateUser(id, updateUserDTO, roleType != null ? roleType.name() : null);
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid role ID or data.");
+        }
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<?> updatePassword(@PathVariable Long id, @RequestBody UpdatePasswordDTO updatePasswordDTO) {
+        try {
+            userService.updatePassword(id, updatePasswordDTO);
+            return ResponseEntity.ok().build();
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with id: " + id);
+        } catch (InvalidCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Current password is incorrect.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the password.");
+        }
     }
 
     @GetMapping
-    public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        try {
+            UserDTO user = userService.getUserById(id);
+            return ResponseEntity.ok(user);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    private RoleType convertRoleIdToRoleType(Long roleId) {
+        switch (roleId.intValue()) {
+            case 1: return RoleType.ADMIN;
+            case 2: return RoleType.CLIENT;
+            case 3: return RoleType.ACCOUNTANT;
+            default: throw new IllegalArgumentException("Invalid roleId: " + roleId);
+        }
     }
 }

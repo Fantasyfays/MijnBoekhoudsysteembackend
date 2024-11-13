@@ -1,12 +1,11 @@
 package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
+import com.boekhoud.backendboekhoudapplicatie.enums.RoleType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,6 +18,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String username;
 
     @JsonIgnore
@@ -26,5 +26,4 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private RoleType role;
-
 }

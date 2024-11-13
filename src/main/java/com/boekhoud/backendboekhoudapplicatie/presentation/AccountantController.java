@@ -1,6 +1,8 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation;
 
 import com.boekhoud.backendboekhoudapplicatie.dto.AccountantDTO;
+import com.boekhoud.backendboekhoudapplicatie.dto.CreateAccountantDTO;
+import com.boekhoud.backendboekhoudapplicatie.dto.UpdateAccountantDTO;
 import com.boekhoud.backendboekhoudapplicatie.service.AccountantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,28 +21,28 @@ public class AccountantController {
         this.accountantService = accountantService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<AccountantDTO> createAccountant(@RequestBody AccountantDTO accountantDTO, @RequestParam Long companyId) {
-        AccountantDTO newAccountant = accountantService.createAccountant(accountantDTO, companyId);
-        return ResponseEntity.ok(newAccountant);
+    @PostMapping
+    public ResponseEntity<AccountantDTO> createAccountant(
+            @RequestBody CreateAccountantDTO createAccountantDTO,
+            @RequestParam("companyId") Long companyId) {  // Require companyId as query parameter
+        AccountantDTO newAccountant = accountantService.createAccountantWithinCompany(createAccountantDTO, companyId);
+        return ResponseEntity.status(201).body(newAccountant);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AccountantDTO> updateAccountant(@PathVariable Long id, @RequestBody UpdateAccountantDTO updateAccountantDTO) {
+        AccountantDTO updatedAccountant = accountantService.updateAccountant(id, updateAccountantDTO);
+        return ResponseEntity.ok(updatedAccountant);
     }
 
     @GetMapping
     public ResponseEntity<List<AccountantDTO>> getAllAccountants() {
-        List<AccountantDTO> accountants = accountantService.getAllAccountants();
-        return ResponseEntity.ok(accountants);
+        return ResponseEntity.ok(accountantService.getAllAccountants());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AccountantDTO> getAccountantById(@PathVariable Long id) {
-        AccountantDTO accountant = accountantService.getAccountantById(id);
-        return ResponseEntity.ok(accountant);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<AccountantDTO> updateAccountant(@PathVariable Long id, @RequestBody AccountantDTO accountantDTO) {
-        AccountantDTO updatedAccountant = accountantService.updateAccountant(id, accountantDTO);
-        return ResponseEntity.ok(updatedAccountant);
+        return ResponseEntity.ok(accountantService.getAccountantById(id));
     }
 
     @DeleteMapping("/{id}")

@@ -4,24 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountantDTO {
+public class UpdateAccountantDTO {
 
-    private Long id;
-    private String username;
-    private Long companyId;
-    private String firstName;
-    private String lastName;
+    @Pattern(regexp = "\\+?[0-9]{10,15}", message = "Invalid phone number format.")
     private String phoneNumber;
+
+    @Email(message = "Invalid email format.")
     private String email;
+
     private String specialization;
     private String officeLocation;
-    private LocalDate dateOfHire;
     private Boolean activeStatus;
 }

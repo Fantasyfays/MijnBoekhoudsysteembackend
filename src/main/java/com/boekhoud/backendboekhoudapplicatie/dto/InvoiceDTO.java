@@ -1,31 +1,34 @@
 package com.boekhoud.backendboekhoudapplicatie.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class InvoiceDTO {
+
+    private Long id;
     private String invoiceNumber;
     private LocalDate invoiceDate;
     private LocalDate dueDate;
-
-    private String customerName;
-    private String customerAddress;
-    private String customerEmail;
-    private String customerPhone;
-
-    private String companyName;
-    private String companyAddress;
-    private String companyPhone;
-    private String companyTaxId;
-
-    private Double subtotal;
-    private Double tax;
-    private Double totalAmount;
-
+    private String description;
+    private int quantity;
+    private double unitPrice;
+    private double subtotal;
+    private double tax;
+    private double totalAmount;
+    private String bicSwiftNumber;
     private String paymentTerms;
-    private String notes;
+    private String paymentCurrency;
 
-    private List<InvoiceItemDTO> items;
+    private String recipientName;
+    private String recipientCompany;
+    private String recipientAddress;
+    private String recipientEmail;
 }

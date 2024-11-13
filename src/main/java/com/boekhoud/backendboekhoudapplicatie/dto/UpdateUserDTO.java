@@ -1,14 +1,15 @@
 package com.boekhoud.backendboekhoudapplicatie.dto;
 
 import lombok.Data;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 @Data
-public class CreateUserDTO {
+public class UpdateUserDTO {
 
     @NotBlank(message = "Username is required.")
     private String username;
 
-    @NotBlank(message = "Password is required.")
-    private String password;
+    @Email(message = "Invalid email format.")
+    private String email;
 }

@@ -1,6 +1,8 @@
 package com.boekhoud.backendboekhoudapplicatie.presentation;
 
 import com.boekhoud.backendboekhoudapplicatie.dto.CompanyDTO;
+import com.boekhoud.backendboekhoudapplicatie.dto.CreateCompanyDTO;
+import com.boekhoud.backendboekhoudapplicatie.dto.UpdateCompanyDTO;
 import com.boekhoud.backendboekhoudapplicatie.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +21,10 @@ public class CompanyController {
         this.companyService = companyService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CompanyDTO companyDTO) {
-        CompanyDTO savedCompany = companyService.createCompany(companyDTO);
-        return ResponseEntity.ok(savedCompany);
+    @PostMapping
+    public ResponseEntity<CompanyDTO> createCompany(@RequestBody CreateCompanyDTO createCompanyDTO) {
+        CompanyDTO savedCompany = companyService.createCompany(createCompanyDTO);
+        return ResponseEntity.status(201).body(savedCompany);
     }
 
     @GetMapping
@@ -38,8 +40,8 @@ public class CompanyController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Long id, @RequestBody CompanyDTO companyDTO) {
-        CompanyDTO updatedCompany = companyService.updateCompany(id, companyDTO);
+    public ResponseEntity<CompanyDTO> updateCompany(@PathVariable Long id, @RequestBody UpdateCompanyDTO updateCompanyDTO) {
+        CompanyDTO updatedCompany = companyService.updateCompany(id, updateCompanyDTO);
         return ResponseEntity.ok(updatedCompany);
     }
 

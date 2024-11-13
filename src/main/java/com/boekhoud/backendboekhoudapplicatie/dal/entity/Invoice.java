@@ -1,14 +1,19 @@
 package com.boekhoud.backendboekhoudapplicatie.dal.entity;
 
-import lombok.*;
+import com.boekhoud.backendboekhoudapplicatie.enums.InvoiceStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
-import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Invoice {
 
     @Id
@@ -18,25 +23,27 @@ public class Invoice {
     private String invoiceNumber;
     private LocalDate invoiceDate;
     private LocalDate dueDate;
+    private String description;
+    private int quantity;
+    private double unitPrice;
+    private double subtotal;
+    private double tax;
+    private double totalAmount;
 
-    private String customerName;
-    private String customerAddress;
-    private String customerEmail;
-    private String customerPhone;
-
-    private String companyName;
-    private String companyAddress;
-    private String companyPhone;
-    private String companyTaxId;
-
-    private Double subtotal;
-    private Double tax;
-    private Double totalAmount;
-
+    private String bicSwiftNumber;
     private String paymentTerms;
-    private String notes;
+    private String paymentCurrency;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "invoice_id")
-    private List<InvoiceItem> items;
+    private String recipientName;
+    private String recipientCompany;
+    private String recipientAddress;
+    private String recipientEmail;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
+    // New status field
+    @Enumerated(EnumType.STRING)
+    private InvoiceStatus status;
 }

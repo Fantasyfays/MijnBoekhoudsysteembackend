@@ -1,4 +1,4 @@
-package com.boekhoud.backendboekhoudapplicatie.dal.entity;
+package com.boekhoud.backendboekhoudapplicatie.enums;
 
 public enum RoleType {
     ADMIN,

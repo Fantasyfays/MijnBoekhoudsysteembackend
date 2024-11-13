@@ -11,11 +11,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyDTO {
+public class ClientDTO {
 
     private Long id;
     private String name;
     private String address;
+    private String kvkNumber;
+    private String taxNumber;
+    private String bankAccountNumber;
     private String email;
-    private List<AccountantDTO> accountants;
+    private String phoneNumber;
+    private CompanyDTO company;
+    private AccountantDTO accountant;
+    private List<InvoiceDTO> invoices;
 }

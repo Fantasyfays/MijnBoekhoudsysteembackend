@@ -1,12 +1,12 @@
 package com.boekhoud.backendboekhoudapplicatie.service;
 
-import com.boekhoud.backendboekhoudapplicatie.dto.CreateUserDTO;
-import com.boekhoud.backendboekhoudapplicatie.dto.EditUserDTO;
-import com.boekhoud.backendboekhoudapplicatie.dto.UserLoginDTO;
-import com.boekhoud.backendboekhoudapplicatie.dto.UserDTO;
+import com.boekhoud.backendboekhoudapplicatie.dto.*;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
-import com.boekhoud.backendboekhoudapplicatie.dal.entity.RoleType;
+import com.boekhoud.backendboekhoudapplicatie.enums.RoleType;
+import com.boekhoud.backendboekhoudapplicatie.exception.InvalidCredentialsException;
+import com.boekhoud.backendboekhoudapplicatie.exception.UserNotFoundException;
 import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IUserDal;
+import com.boekhoud.backendboekhoudapplicatie.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,67 +17,68 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    private final IUserDal IUserDal;
+    private final IUserDal userDal;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserService(IUserDal IUserDal, PasswordEncoder passwordEncoder) {
-        this.IUserDal = IUserDal;
+    public UserService(IUserDal userDal, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+        this.userDal = userDal;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
+    }
+
+    public void updatePassword(long userId, UpdatePasswordDTO updatePasswordDTO) {
+        User user = userDal.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
+
+        if (!passwordEncoder.matches(updatePasswordDTO.getCurrentPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(updatePasswordDTO.getNewPassword()));
+        userDal.save(user);
     }
 
     public UserDTO createUser(CreateUserDTO createUserDTO, RoleType role) {
-        User user = new User();
-        user.setUsername(createUserDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(createUserDTO.getPassword()));
-        user.setRole(role);
-
-        User savedUser = IUserDal.save(user);
-        return convertToDTO(savedUser);
+        User user = userMapper.toEntity(createUserDTO, role, passwordEncoder);
+        User savedUser = userDal.save(user);
+        return userMapper.toDTO(savedUser);
     }
 
     public UserDTO loginUser(UserLoginDTO loginDTO) {
-        User user = IUserDal.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
+        User user = userDal.findByUsername(loginDTO.getUsername())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
 
         if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Invalid username or password");
+            throw new InvalidCredentialsException("Invalid username or password");
         }
 
-        return convertToDTO(user);
+        return userMapper.toDTO(user);
     }
 
-    public UserDTO updateUser(Long id, EditUserDTO editUserDTO, String newRole) {
-        User user = IUserDal.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    public UserDTO updateUser(Long id, UpdateUserDTO updateUserDTO, String newRole) {
+        User user = userDal.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
-        user.setUsername(editUserDTO.getUsername());
-
-        if (newRole != null) {
-            user.setRole(RoleType.valueOf(newRole.toUpperCase()));
-        }
-
-        User updatedUser = IUserDal.save(user);
-        return convertToDTO(updatedUser);
+        userMapper.updateEntityFromDTO(updateUserDTO, user, newRole);
+        User updatedUser = userDal.save(user);
+        return userMapper.toDTO(updatedUser);
     }
 
     public List<UserDTO> getAllUsers() {
-        return IUserDal.findAll().stream()
-                .map(this::convertToDTO)
+        return userDal.findAll().stream()
+                .map(userMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     public UserDTO getUserById(Long id) {
-        User user = IUserDal.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-        return convertToDTO(user);
+        User user = userDal.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+        return userMapper.toDTO(user);
     }
 
     public void deleteUser(Long id) {
-        IUserDal.deleteById(id);
-    }
-
-    private UserDTO convertToDTO(User user) {
-        return new UserDTO(user.getId(), user.getUsername(), user.getRole().name());
+        userDal.deleteById(id);
     }
 }

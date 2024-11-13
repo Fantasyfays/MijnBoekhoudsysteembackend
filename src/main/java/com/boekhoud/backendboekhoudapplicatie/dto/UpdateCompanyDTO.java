@@ -4,18 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Email;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CompanyDTO {
+public class UpdateCompanyDTO {
 
-    private Long id;
+    @NotBlank(message = "Name is required.")
     private String name;
+
+    @NotBlank(message = "Address is required.")
     private String address;
+
+    @Email(message = "Invalid email format.")
     private String email;
-    private List<AccountantDTO> accountants;
 }

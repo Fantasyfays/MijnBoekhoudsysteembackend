@@ -1,67 +1,95 @@
 package com.boekhoud.backendboekhoudapplicatie.service;
 
-import com.boekhoud.backendboekhoudapplicatie.dal.MockUserDal;
-import com.boekhoud.backendboekhoudapplicatie.dal.entity.User;
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.Client;
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.Invoice;
+import com.boekhoud.backendboekhoudapplicatie.dal.repository.ClientRepository;
+import com.boekhoud.backendboekhoudapplicatie.dal.repository.InvoiceRepository;
+import com.boekhoud.backendboekhoudapplicatie.dto.CreateInvoiceDTO;
+import com.boekhoud.backendboekhoudapplicatie.dto.InvoiceDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
-class UserServiceTest {
+public class InvoiceServiceTest {
 
-    private MockUserDal mockUserDal;
+    @Mock
+    private InvoiceRepository invoiceRepository;
+
+    @Mock
+    private ClientRepository clientRepository;
+
+    @InjectMocks
+    private InvoiceService invoiceService;
 
     @BeforeEach
-    void setUp() {
-        mockUserDal = new MockUserDal();
-        mockUserDal.clearStorage();
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testFindUserById() {
-        User user = new User();
-        user.setUsername("testUser");
-        User savedUser = mockUserDal.save(user);
+    public void testCreateInvoice_HappyFlow() {
+        Long clientId = 1L;
+        CreateInvoiceDTO createInvoiceDTO = new CreateInvoiceDTO();
+        createInvoiceDTO.setInvoiceNumber("INV-00001");
+        createInvoiceDTO.setInvoiceDate(LocalDate.now());
+        createInvoiceDTO.setDescription("Happy Flow Test Invoice");
+        createInvoiceDTO.setQuantity(2);
+        createInvoiceDTO.setUnitPrice(50.0);
 
-        Optional<User> foundUser = mockUserDal.findById(savedUser.getId());
-        assertTrue(foundUser.isPresent());
-        assertEquals("testUser", foundUser.get().getUsername());
+        Client client = new Client();
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+        when(invoiceRepository.save(any(Invoice.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        InvoiceDTO result = invoiceService.createInvoice(createInvoiceDTO, clientId);
+
+        assertNotNull(result);
+        assertEquals("Happy Flow Test Invoice", result.getDescription());
+        assertEquals(2, result.getQuantity());
+        assertEquals(50.0, result.getUnitPrice(), 0.01);
+        assertNotNull(result.getInvoiceNumber());
     }
 
     @Test
-    void testSaveUser() {
-        User userToSave = new User();
-        userToSave.setUsername("newUser");
+    public void testCreateInvoice_UnhappyFlow_ClientNotFound() {
+        Long clientId = 99L;
+        CreateInvoiceDTO createInvoiceDTO = new CreateInvoiceDTO();
+        createInvoiceDTO.setInvoiceNumber("INV-00002");
 
-        User savedUser = mockUserDal.save(userToSave);
+        when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
 
-        assertEquals(1L, savedUser.getId());
-        assertEquals("newUser", savedUser.getUsername());
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            invoiceService.createInvoice(createInvoiceDTO, clientId);
+        });
+        assertEquals("Client not found with ID: " + clientId, exception.getMessage());
     }
 
     @Test
-    void testDeleteUserById() {
-        User user = new User();
-        user.setUsername("userToDelete");
-        User savedUser = mockUserDal.save(user);
+    public void testCreateInvoice_EdgeCase_MinQuantityAndPrice() {
+        Long clientId = 1L;
+        CreateInvoiceDTO createInvoiceDTO = new CreateInvoiceDTO();
+        createInvoiceDTO.setInvoiceNumber("INV-00003");
+        createInvoiceDTO.setInvoiceDate(LocalDate.now());
+        createInvoiceDTO.setDescription("Edge Case Test Invoice");
+        createInvoiceDTO.setQuantity(1);
+        createInvoiceDTO.setUnitPrice(0.01);
 
-        mockUserDal.deleteById(savedUser.getId());
+        Client client = new Client();
+        when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+        when(invoiceRepository.save(any(Invoice.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Optional<User> deletedUser = mockUserDal.findById(savedUser.getId());
-        assertTrue(deletedUser.isEmpty());
-    }
+        InvoiceDTO result = invoiceService.createInvoice(createInvoiceDTO, clientId);
 
-    @Test
-    void testFindUserByUsername() {
-        User user = new User();
-        user.setUsername("testUser");
-        mockUserDal.save(user);
-
-        Optional<User> foundUser = mockUserDal.findByUsername("testUser");
-        assertTrue(foundUser.isPresent());
-        assertEquals("testUser", foundUser.get().getUsername());
+        assertNotNull(result);
+        assertEquals(1, result.getQuantity());
+        assertEquals(0.01, result.getUnitPrice(), 0.001);
     }
 }
