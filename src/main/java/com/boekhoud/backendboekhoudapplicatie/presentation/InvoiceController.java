@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/invoices")
@@ -22,14 +23,14 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
-    // Pas de URL aan om het companyId te bevatten
-    @PostMapping("/create/{companyId}")
+    @PostMapping("/create")
     public ResponseEntity<InvoiceDTO> createInvoice(
             @RequestBody CreateInvoiceDTO createInvoiceDTO,
-            @PathVariable Long companyId) {  // Hier het companyId uit de URL halen
-        InvoiceDTO newInvoice = invoiceService.createInvoice(createInvoiceDTO, companyId);
+            @RequestParam Long clientId) { // Haal clientId als parameter
+        InvoiceDTO newInvoice = invoiceService.createInvoice(createInvoiceDTO, clientId);
         return ResponseEntity.status(201).body(newInvoice);
     }
+
 
     @GetMapping("/{invoiceId}")
     public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable Long invoiceId) {
@@ -55,4 +56,10 @@ public class InvoiceController {
         invoiceService.deleteInvoice(invoiceId);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/client/{clientId}")
+    public ResponseEntity<List<InvoiceDTO>> getInvoicesByClient(@PathVariable Long clientId) {
+        List<InvoiceDTO> invoices = invoiceService.getInvoicesByClient(clientId);
+        return ResponseEntity.ok(invoices);
+    }
+
 }

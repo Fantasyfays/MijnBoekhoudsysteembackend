@@ -4,7 +4,8 @@ import com.boekhoud.backendboekhoudapplicatie.dto.*;
 import com.boekhoud.backendboekhoudapplicatie.exception.InvalidCredentialsException;
 import com.boekhoud.backendboekhoudapplicatie.exception.UserNotFoundException;
 import com.boekhoud.backendboekhoudapplicatie.service.UserService;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,15 +35,23 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> loginUser(@RequestBody UserLoginDTO loginDTO, HttpSession session) {
+    public ResponseEntity<UserDTO> loginUser(@RequestBody UserLoginDTO loginDTO, HttpServletResponse response) {
         try {
             UserDTO loggedInUser = userService.loginUser(loginDTO);
-            session.setAttribute("loggedInUser", loggedInUser);
+
+            // Cookie instellen
+            Cookie loginCookie = new Cookie("loggedInUser", loggedInUser.getUsername());
+            loginCookie.setHttpOnly(true); // Verhoogde veiligheid
+            loginCookie.setPath("/");
+            loginCookie.setMaxAge(60 * 60 * 24); // Cookie geldig voor 1 dag
+            response.addCookie(loginCookie);
+
             return ResponseEntity.ok(loggedInUser);
         } catch (InvalidCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id,

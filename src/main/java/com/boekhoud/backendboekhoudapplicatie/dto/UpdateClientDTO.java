@@ -1,33 +1,32 @@
 package com.boekhoud.backendboekhoudapplicatie.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class UpdateClientDTO {
 
-    @NotBlank(message = "Name is required.")
-    private String name;
+    @NotBlank(message = "Company name cannot be blank.")
+    private String companyName;
 
-    @NotBlank(message = "Address is required.")
+    @NotBlank(message = "Address cannot be blank.")
     private String address;
 
-    @NotBlank(message = "KvK Number is required.")
-    private String kvkNumber;
+    @NotBlank(message = "Zip code cannot be blank.")
+    private String zipCode;
 
-    @NotBlank(message = "Tax number is required.")
-    private String taxNumber;
+    @NotBlank(message = "City cannot be blank.")
+    private String city;
 
-    @NotBlank(message = "Bank account number is required.")
-    private String bankAccountNumber;
+    @NotBlank(message = "Country cannot be blank.")
+    private String country;
 
-    @Email(message = "Invalid email format.")
+    @Email(message = "Email should be valid.")
     private String email;
 
-    @Pattern(regexp = "\\+?[0-9]{10,15}", message = "Invalid phone number format.")
     private String phoneNumber;
+    private String bank;
+    private String swiftCode;
+    private String bankAccountNumber;
 }

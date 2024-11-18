@@ -21,8 +21,20 @@ public class Client implements CompanyEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String companyName;
     private String address;
+    private String zipCode;
+    private String city;
+    private String country;
+
+    @NotNull
+    @Email
+    private String email;
+
+    private String phoneNumber;
+    private String bank;
+    private String swiftCode;
+    private String bankAccountNumber;
 
     @NotNull
     @Size(min = 8, max = 20)
@@ -32,13 +44,6 @@ public class Client implements CompanyEntity {
     @Size(min = 10, max = 20)
     private String taxNumber;
 
-    private String bankAccountNumber;
-
-    @NotNull
-    @Email
-    private String email;
-
-    private String phoneNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)

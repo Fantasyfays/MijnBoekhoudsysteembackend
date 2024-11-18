@@ -10,11 +10,10 @@ public interface IClientDal {
 
     Optional<Client> findById(Long id);
 
-    List<Client> findByAccountantId(Long accountantId);
-
-    List<Client> findByCompanyId(Long companyId);
-
     Client save(Client client);
 
     void deleteById(Long id);
+
+    Optional<Client> findByUsername(String username);
+
 }

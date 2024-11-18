@@ -30,18 +30,13 @@ public class ClientDal implements IClientDal {
     }
 
     @Override
-    public List<Client> findByAccountantId(Long accountantId) {
-        return clientRepository.findByAccountantId(accountantId);
-    }
-
-    @Override
-    public List<Client> findByCompanyId(Long companyId) {
-        return clientRepository.findByCompanyId(companyId);
-    }
-
-    @Override
     public Client save(Client client) {
         return clientRepository.save(client);
+    }
+
+    @Override
+    public Optional<Client> findByUsername(String username) {
+        return clientRepository.findByUser_Username(username);
     }
 
     @Override

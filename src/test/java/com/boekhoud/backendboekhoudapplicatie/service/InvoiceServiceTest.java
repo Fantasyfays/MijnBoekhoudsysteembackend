@@ -63,35 +63,28 @@ class InvoiceServiceTest {
             invoiceService.createInvoice(createInvoiceDTO, 1L);
         });
 
-        // Controleer of de juiste foutmelding wordt gegeven
         assertEquals("Quantity must be at least 1.", thrown.getMessage());
     }
 
-    // Edge Case: Factuur met de minimum hoeveelheid (1)
     @Test
     void testCreateInvoice_EdgeCase() {
-        // Maak een mock client aan
         Client client = new Client();
-        client.setId(1L);  // Stel een ID in voor de client
+        client.setId(1L);
 
-        // Voeg de client toe aan de mock database
         mockClientDAL.save(client);
 
-        // Gegevens voor de factuur met de minimum hoeveelheid
         CreateInvoiceDTO createInvoiceDTO = new CreateInvoiceDTO();
         createInvoiceDTO.setInvoiceDate(LocalDate.parse("2024-01-01"));
         createInvoiceDTO.setDueDate(LocalDate.parse("2024-01-15"));
         createInvoiceDTO.setDescription("Edge Case Invoice");
-        createInvoiceDTO.setQuantity(1);  // Minimale hoeveelheid
+        createInvoiceDTO.setQuantity(1);
         createInvoiceDTO.setUnitPrice(100.0);
 
-        // Maak de factuur aan en koppel de client via de DAL
-        InvoiceDTO invoiceDTO = invoiceService.createInvoice(createInvoiceDTO, client.getId());  // Stuur clientId mee
+        InvoiceDTO invoiceDTO = invoiceService.createInvoice(createInvoiceDTO, client.getId());
 
-        // Controleer of de factuur succesvol is aangemaakt
-        assertNotNull(invoiceDTO);  // De factuur mag niet null zijn
-        assertEquals("Edge Case Invoice", invoiceDTO.getDescription());  // De beschrijving moet "Edge Case Invoice" zijn
-        assertEquals(1, invoiceDTO.getQuantity());  // De hoeveelheid moet 1 zijn (edge case)
-        assertEquals(100.0, invoiceDTO.getUnitPrice());  // De prijs per eenheid moet 100.0 zijn
+        assertNotNull(invoiceDTO);
+        assertEquals("Edge Case Invoice", invoiceDTO.getDescription());
+        assertEquals(1, invoiceDTO.getQuantity());
+        assertEquals(100.0, invoiceDTO.getUnitPrice());
     }
 }

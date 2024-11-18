@@ -1,5 +1,6 @@
 package com.boekhoud.backendboekhoudapplicatie.dal.implementatie;
 
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.Client;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Invoice;
 import com.boekhoud.backendboekhoudapplicatie.dal.repository.InvoiceRepository;
 import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IInvoiceDal;
@@ -38,4 +39,9 @@ public class InvoiceDal implements IInvoiceDal {
     public void deleteById(Long id) {
         invoiceRepository.deleteById(id);
     }
+    @Override
+    public List<Invoice> findAllByClient(Client client) {
+        return invoiceRepository.findAllByClient(client);
+    }
+
 }

@@ -1,39 +1,49 @@
 package com.boekhoud.backendboekhoudapplicatie.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class CreateClientDTO {
 
-    @NotBlank(message = "Name is required.")
-    private String name;
+    @NotBlank(message = "Company name cannot be blank.")
+    private String companyName;
 
-    @NotBlank(message = "Address is required.")
+    @NotBlank(message = "Address cannot be blank.")
     private String address;
 
-    @NotBlank(message = "KvK Number is required.")
-    private String kvkNumber;
+    @NotBlank(message = "Zip code cannot be blank.")
+    private String zipCode;
 
-    @NotBlank(message = "Tax number is required.")
-    private String taxNumber;
+    @NotBlank(message = "City cannot be blank.")
+    private String city;
 
-    @NotBlank(message = "Bank account number is required.")
-    private String bankAccountNumber;
+    @NotBlank(message = "Country cannot be blank.")
+    private String country;
 
-    @Email(message = "Invalid email format.")
+    @NotNull(message = "Email is required.")
+    @Email(message = "Email should be valid.")
     private String email;
 
-    @Pattern(regexp = "\\+?[0-9]{10,15}", message = "Invalid phone number format.")
     private String phoneNumber;
+    private String bank;
+    private String swiftCode;
+    private String bankAccountNumber;
 
-    @NotBlank(message = "Username is required.")
+    @NotNull(message = "KvK number is required.")
+    @Size(min = 8, max = 20, message = "KvK number must be between 8 and 20 characters.")
+    private String kvkNumber;
+
+    @NotNull(message = "Tax number is required.")
+    @Size(min = 10, max = 20, message = "Tax number must be between 10 and 20 characters.")
+    private String taxNumber;
+
+    @NotBlank(message = "Username cannot be blank.")
     private String username;
 
-    @NotBlank(message = "Password is required.")
+    @NotBlank(message = "Password cannot be blank.")
     private String password;
 }

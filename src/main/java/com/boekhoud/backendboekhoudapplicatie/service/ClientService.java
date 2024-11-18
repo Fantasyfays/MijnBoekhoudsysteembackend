@@ -38,17 +38,24 @@ public class ClientService {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new IllegalArgumentException("Company not found with ID: " + companyId));
 
+        // Maak een nieuwe gebruiker aan voor de client
         User user = new User();
         user.setUsername(createClientDTO.getUsername());
         user.setPassword(passwordEncoder.encode(createClientDTO.getPassword()));
         user.setRole(RoleType.CLIENT);
         User savedUser = userRepository.save(user);
 
+        // Maak een nieuwe client aan
         Client client = Client.builder()
-                .name(createClientDTO.getName())
+                .companyName(createClientDTO.getCompanyName())
                 .address(createClientDTO.getAddress())
+                .zipCode(createClientDTO.getZipCode())
+                .city(createClientDTO.getCity())
+                .country(createClientDTO.getCountry())
                 .kvkNumber(createClientDTO.getKvkNumber())
                 .taxNumber(createClientDTO.getTaxNumber())
+                .bank(createClientDTO.getBank())
+                .swiftCode(createClientDTO.getSwiftCode())
                 .bankAccountNumber(createClientDTO.getBankAccountNumber())
                 .email(createClientDTO.getEmail())
                 .phoneNumber(createClientDTO.getPhoneNumber())
@@ -64,8 +71,14 @@ public class ClientService {
         Client client = clientRepository.findById(clientId)
                 .orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + clientId));
 
-        client.setName(updateClientDTO.getName());
+        // Update velden van de client
+        client.setCompanyName(updateClientDTO.getCompanyName());
         client.setAddress(updateClientDTO.getAddress());
+        client.setZipCode(updateClientDTO.getZipCode());
+        client.setCity(updateClientDTO.getCity());
+        client.setCountry(updateClientDTO.getCountry());
+        client.setBank(updateClientDTO.getBank());
+        client.setSwiftCode(updateClientDTO.getSwiftCode());
         client.setBankAccountNumber(updateClientDTO.getBankAccountNumber());
         client.setEmail(updateClientDTO.getEmail());
         client.setPhoneNumber(updateClientDTO.getPhoneNumber());
@@ -83,10 +96,15 @@ public class ClientService {
     private ClientDTO convertToDTO(Client client) {
         return ClientDTO.builder()
                 .id(client.getId())
-                .name(client.getName())
+                .companyName(client.getCompanyName())
                 .address(client.getAddress())
+                .zipCode(client.getZipCode())
+                .city(client.getCity())
+                .country(client.getCountry())
                 .kvkNumber(client.getKvkNumber())
                 .taxNumber(client.getTaxNumber())
+                .bank(client.getBank())
+                .swiftCode(client.getSwiftCode())
                 .bankAccountNumber(client.getBankAccountNumber())
                 .email(client.getEmail())
                 .phoneNumber(client.getPhoneNumber())

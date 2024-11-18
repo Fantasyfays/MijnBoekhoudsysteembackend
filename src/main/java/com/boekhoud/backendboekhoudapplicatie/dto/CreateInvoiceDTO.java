@@ -1,20 +1,14 @@
 package com.boekhoud.backendboekhoudapplicatie.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
 public class CreateInvoiceDTO {
-
-    @NotBlank(message = "Invoice number is required.")
-    private String invoiceNumber;
 
     @NotNull(message = "Invoice date is required.")
     private LocalDate invoiceDate;
@@ -22,7 +16,7 @@ public class CreateInvoiceDTO {
     @NotNull(message = "Due date is required.")
     private LocalDate dueDate;
 
-    @NotBlank(message = "Description is required.")
+    @NotBlank(message = "Description cannot be blank.")
     private String description;
 
     @Min(value = 1, message = "Quantity must be at least 1.")
@@ -31,27 +25,31 @@ public class CreateInvoiceDTO {
     @DecimalMin(value = "0.0", inclusive = false, message = "Unit price must be greater than 0.")
     private double unitPrice;
 
-    @DecimalMin(value = "0.0", inclusive = false, message = "Tax rate must be greater than 0.")
+    @DecimalMin(value = "0.0", message = "Tax rate must be at least 0.")
     private double taxRate;
 
-    @NotBlank(message = "BIC/SWIFT number is required.")
+    @NotBlank(message = "BIC/Swift number cannot be blank.")
     private String bicSwiftNumber;
 
-    @NotBlank(message = "Payment terms are required.")
+    @NotBlank(message = "Payment terms cannot be blank.")
     private String paymentTerms;
 
-    @NotBlank(message = "Payment currency is required.")
+    @NotBlank(message = "Payment currency cannot be blank.")
     private String paymentCurrency;
 
-    @NotBlank(message = "Recipient name is required.")
+    @NotBlank(message = "Recipient name cannot be blank.")
     private String recipientName;
 
-    @NotBlank(message = "Recipient company is required.")
+    @NotBlank(message = "Recipient company cannot be blank.")
     private String recipientCompany;
 
-    @NotBlank(message = "Recipient address is required.")
+    @NotBlank(message = "Recipient address cannot be blank.")
     private String recipientAddress;
 
-    @NotBlank(message = "Recipient email is required.")
+    @Email(message = "Recipient email must be valid.")
+    @NotBlank(message = "Recipient email cannot be blank.")
     private String recipientEmail;
+
+    @NotNull(message = "Delivery date is required.")
+    private LocalDate deliveryDate; // Optional afhankelijk van jouw eisen
 }

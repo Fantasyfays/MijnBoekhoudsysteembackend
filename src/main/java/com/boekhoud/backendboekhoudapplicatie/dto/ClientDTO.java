@@ -1,27 +1,23 @@
 package com.boekhoud.backendboekhoudapplicatie.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class ClientDTO {
 
     private Long id;
-    private String name;
+    private String companyName;
     private String address;
-    private String kvkNumber;
-    private String taxNumber;
-    private String bankAccountNumber;
+    private String zipCode;
+    private String city;
+    private String country;
     private String email;
     private String phoneNumber;
-    private CompanyDTO company;
-    private AccountantDTO accountant;
-    private List<InvoiceDTO> invoices;
+    private String bank;
+    private String swiftCode;
+    private String bankAccountNumber;
+    private String kvkNumber;
+    private String taxNumber;
 }

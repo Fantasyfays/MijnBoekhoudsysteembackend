@@ -8,6 +8,7 @@ import java.util.*;
 public class MockClientDAL implements IClientDal {
 
     private Map<Long, Client> clientDatabase = new HashMap<>();
+    private Map<String, Client> usernameToClientMap = new HashMap<>(); // Voor username-lookup
     private Long currentId = 1L;
 
     @Override
@@ -21,15 +22,8 @@ public class MockClientDAL implements IClientDal {
     }
 
     @Override
-    public List<Client> findByAccountantId(Long accountantId) {
-        // Voor deze mock, retourneer alle clients als ze een accountantId hebben (je kunt dit uitbreiden zoals nodig)
-        return new ArrayList<>(clientDatabase.values());
-    }
-
-    @Override
-    public List<Client> findByCompanyId(Long companyId) {
-        // Zelfde hier, voor het gemak mocken we dit
-        return new ArrayList<>(clientDatabase.values());
+    public Optional<Client> findByUsername(String username) {
+        return Optional.ofNullable(usernameToClientMap.get(username));
     }
 
     @Override
@@ -38,20 +32,26 @@ public class MockClientDAL implements IClientDal {
             client.setId(currentId++);
         }
         clientDatabase.put(client.getId(), client);
+
+        // Zorg ervoor dat de username wordt gekoppeld aan de client
+        if (client.getUser() != null && client.getUser().getUsername() != null) {
+            usernameToClientMap.put(client.getUser().getUsername(), client);
+        }
         return client;
     }
 
     @Override
     public void deleteById(Long id) {
-        clientDatabase.remove(id);
+        Client client = clientDatabase.remove(id);
+        if (client != null && client.getUser() != null) {
+            usernameToClientMap.remove(client.getUser().getUsername());
+        }
     }
 
-    // Methode om een specifieke client op te halen voor testen
     public Client getSavedClient() {
         if (clientDatabase.isEmpty()) {
             return null;
         }
-        // Retourneer de laatst opgeslagen client (meest recent toegevoegde)
         return clientDatabase.get(currentId - 1);
     }
 }

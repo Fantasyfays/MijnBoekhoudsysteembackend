@@ -1,5 +1,6 @@
 package com.boekhoud.backendboekhoudapplicatie.DAL;
 
+import com.boekhoud.backendboekhoudapplicatie.dal.entity.Client;
 import com.boekhoud.backendboekhoudapplicatie.dal.entity.Invoice;
 import com.boekhoud.backendboekhoudapplicatie.service.dalinterface.IInvoiceDal;
 
@@ -34,12 +35,21 @@ public class MockInvoiceDAL implements IInvoiceDal {
         invoiceDatabase.remove(id);
     }
 
-    // Method to get the saved invoice, for testing purposes
+    @Override
+    public List<Invoice> findAllByClient(Client client) {
+        List<Invoice> invoicesByClient = new ArrayList<>();
+        for (Invoice invoice : invoiceDatabase.values()) {
+            if (invoice.getClient() != null && invoice.getClient().equals(client)) {
+                invoicesByClient.add(invoice);
+            }
+        }
+        return invoicesByClient;
+    }
+
     public Invoice getSavedInvoice() {
         if (invoiceDatabase.isEmpty()) {
             return null;
         }
-        // Return the last saved invoice (latest added)
         return invoiceDatabase.get(currentId - 1);
     }
 }

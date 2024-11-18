@@ -60,7 +60,7 @@ public class InvoicePdfGenerator {
         title.setAlignment(Element.ALIGN_CENTER);
         document.add(title);
 
-        Paragraph companyName = new Paragraph(invoice.getClient().getName(), companyFont);
+        Paragraph companyName = new Paragraph(invoice.getClient().getCompanyName(), companyFont);
         companyName.setAlignment(Element.ALIGN_CENTER);
         document.add(companyName);
 
@@ -83,7 +83,7 @@ public class InvoicePdfGenerator {
         table.setSpacingAfter(10f);
 
         addTableCell(table, "Sender Name:", font, true);
-        addTableCell(table, invoice.getClient().getName(), font, false);
+        addTableCell(table, invoice.getClient().getCompanyName(), font, false);
 
         addTableCell(table, "Sender Address:", font, true);
         addTableCell(table, invoice.getClient().getAddress(), font, false);
@@ -93,6 +93,12 @@ public class InvoicePdfGenerator {
 
         addTableCell(table, "Sender Phone:", font, true);
         addTableCell(table, invoice.getClient().getPhoneNumber(), font, false);
+
+        addTableCell(table, "KvK Number:", font, true);
+        addTableCell(table, invoice.getClient().getKvkNumber(), font, false);
+
+        addTableCell(table, "BTW Number:", font, true);
+        addTableCell(table, invoice.getClient().getTaxNumber(), font, false);
 
         document.add(table);
     }
@@ -135,6 +141,9 @@ public class InvoicePdfGenerator {
         addTableCell(table, "Due Date:", font, true);
         addTableCell(table, invoice.getDueDate().toString(), font, false);
 
+        addTableCell(table, "Delivery Date:", font, true);
+        addTableCell(table, invoice.getDeliveryDate() != null ? invoice.getDeliveryDate().toString() : "N/A", font, false);
+
         addTableCell(table, "Description:", font, true);
         addTableCell(table, invoice.getDescription(), font, false);
 
@@ -170,7 +179,7 @@ public class InvoicePdfGenerator {
         addTableCell(table, "Subtotal:", font, true);
         addTableCell(table, String.format("%.2f", invoice.getSubtotal()), font, false);
 
-        addTableCell(table, "Tax:", font, true);
+        addTableCell(table, "Tax (21%):", font, true);
         addTableCell(table, String.format("%.2f", invoice.getTax()), font, false);
 
         addTableCell(table, "Total Amount:", font, true);
@@ -185,7 +194,7 @@ public class InvoicePdfGenerator {
         footer.setAlignment(Element.ALIGN_CENTER);
         document.add(footer);
 
-        Paragraph terms = new Paragraph("Please make payment within 30 days to the bank account specified. For any inquiries, contact us at info@company.com.", font);
+        Paragraph terms = new Paragraph("Payment is due within 30 days. Please contact us for any questions at info@company.com.", font);
         terms.setAlignment(Element.ALIGN_CENTER);
         document.add(terms);
     }
@@ -200,4 +209,20 @@ public class InvoicePdfGenerator {
         }
         table.addCell(cell);
     }
+    private static void addBankDetails(Document document, Invoice invoice) throws DocumentException {
+        Font font = new Font(Font.FontFamily.HELVETICA, 12);
+        PdfPTable table = new PdfPTable(2);
+        table.setWidthPercentage(100);
+        table.setSpacingBefore(5f);
+        table.setSpacingAfter(10f);
+
+        addTableCell(table, "Bank Account (IBAN):", font, true);
+        addTableCell(table, invoice.getBankAccountNumber(), font, false);
+
+        addTableCell(table, "BIC/SWIFT Code:", font, true);
+        addTableCell(table, invoice.getBicSwiftNumber(), font, false);
+
+        document.add(table);
+    }
+
 }

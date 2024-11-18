@@ -21,7 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class InvoiceService {
@@ -61,12 +63,14 @@ public class InvoiceService {
                 invoice.getTax(),
                 invoice.getTotalAmount(),
                 invoice.getBicSwiftNumber(),
+                invoice.getBankAccountNumber(), // Map this field
                 invoice.getPaymentTerms(),
                 invoice.getPaymentCurrency(),
                 invoice.getRecipientName(),
                 invoice.getRecipientCompany(),
                 invoice.getRecipientAddress(),
-                invoice.getRecipientEmail()
+                invoice.getRecipientEmail(),
+                invoice.getDeliveryDate()
         );
     }
 
@@ -152,7 +156,7 @@ public class InvoiceService {
         Invoice invoice = invoiceDal.findById(id)
                 .orElseThrow(() -> new RuntimeException("Invoice not found with ID: " + id));
 
-        invoice.setInvoiceNumber(createInvoiceDTO.getInvoiceNumber());
+        // Factuurnummer wordt niet overschreven, omdat het al eerder is gegenereerd
         invoice.setInvoiceDate(convertStringToLocalDate(createInvoiceDTO.getInvoiceDate().toString()));
         invoice.setDueDate(convertStringToLocalDate(createInvoiceDTO.getDueDate().toString()));
         invoice.setDescription(createInvoiceDTO.getDescription());
@@ -179,7 +183,17 @@ public class InvoiceService {
         return convertToDTO(updatedInvoice);
     }
 
+
     public void deleteInvoice(Long id) {
         invoiceDal.deleteById(id);
     }
+    public List<InvoiceDTO> getInvoicesByClient(Long clientId) {
+        Client client = clientDal.findById(clientId)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + clientId));
+
+        return invoiceDal.findAllByClient(client).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

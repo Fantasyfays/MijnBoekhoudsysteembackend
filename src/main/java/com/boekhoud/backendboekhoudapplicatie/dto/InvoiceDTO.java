@@ -23,7 +23,9 @@ public class InvoiceDTO {
     private double subtotal;
     private double tax;
     private double totalAmount;
+
     private String bicSwiftNumber;
+    private String bankAccountNumber; // Add this field
     private String paymentTerms;
     private String paymentCurrency;
 
@@ -31,4 +33,6 @@ public class InvoiceDTO {
     private String recipientCompany;
     private String recipientAddress;
     private String recipientEmail;
+
+    private LocalDate deliveryDate;
 }

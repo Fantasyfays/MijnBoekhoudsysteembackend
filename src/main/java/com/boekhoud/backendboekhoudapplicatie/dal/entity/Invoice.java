@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
-
 @Entity
 @Data
 @NoArgsConstructor
@@ -22,6 +21,8 @@ public class Invoice {
     private String invoiceNumber;
     private LocalDate invoiceDate;
     private LocalDate dueDate;
+    private LocalDate deliveryDate;
+
     private String description;
     private int quantity;
     private double unitPrice;
@@ -30,6 +31,7 @@ public class Invoice {
     private double totalAmount;
 
     private String bicSwiftNumber;
+    private String bankAccountNumber;
     private String paymentTerms;
     private String paymentCurrency;
 
@@ -44,4 +46,4 @@ public class Invoice {
 
     @Enumerated(EnumType.STRING)
     private InvoiceStatus status;
-}
+} 
